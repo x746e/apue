@@ -1,4 +1,4 @@
-PROGS = pr02-17
+PROGS = pr02-17 check-open-limits
 
 all: $(PROGS) .gitignore
 
