@@ -33,7 +33,7 @@ open_max(void)
 }
 
 
-void
+int
 main() {
-        printf("open_max: %ld\n", open_max());
+    printf("open_max: %ld\n", open_max());
 }
