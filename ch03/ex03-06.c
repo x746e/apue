@@ -11,7 +11,7 @@
 void check_position(int fd);
 
 
-void main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {
     if (argc != 2) {
         err_quit("Usage: %s <file>", argv[0]);
     }

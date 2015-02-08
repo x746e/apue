@@ -2,7 +2,7 @@
 #include <fcntl.h>
 
 
-void main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {
     if (argc != 2) {
         err_quit("Usage: %s <directory>", argv[0]);
     }
@@ -23,7 +23,10 @@ void main(int argc, char *argv[]) {
     }
 
     char buff[BUFSIZ] = { 0 };
-    if (read(fd, buff, BUFSIZ) == -1) {
+    int n;
+    if ((n = read(fd, buff, BUFSIZ)) == -1) {
         err_sys("Can't read");
+    } else {
+        write(STDOUT_FILENO, buff, n);
     }
 }

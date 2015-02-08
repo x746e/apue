@@ -21,7 +21,7 @@ void check_fd(int fd);
 int mydup2(int oldfd, int newfd);
 
 
-void
+int
 main() {
     check_fd(0);
     check_fd(1);
@@ -134,9 +134,11 @@ check_fd(int fd) {
     if (file_status_flags & O_SYNC) {
         printf(", O_SYNC");
     }
+#ifdef O_FSYNC
     if (file_status_flags & O_FSYNC) {
         printf(", O_FSYNC");
     }
+#endif
     printf("\n");
 
     char link_target[PATH_MAX] = { 0 };
