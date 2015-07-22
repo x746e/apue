@@ -36,4 +36,5 @@ open_max(void)
 int
 main() {
     printf("open_max: %ld\n", open_max());
+    exit(0);
 }
