@@ -7,7 +7,7 @@ typedef int Myfunc(const char *, const struct stat *, int);
 
 static Myfunc   myfunc;
 static int      myftw(char *, Myfunc *);
-static int      dopath(Myfunc *);
+static int      dopath(Myfunc *, char *);
 
 static long nreg, ndir, nblk, nchr, nfifo, nslink, nsock, ntot;
 
@@ -17,7 +17,7 @@ main(int argc, char *argv[])
     int     ret;
 
     if (argc != 2)
-        err_quit("usage:  ftw  <starting-pathname>");
+        err_quit("usage:  %s  <starting-pathname>", argv[0]);
 
     ret = myftw(argv[1], myfunc);       /* does it all */
 
@@ -50,73 +50,58 @@ main(int argc, char *argv[])
 #define FTW_DNR 3       /* directory that can't be read */
 #define FTW_NS  4       /* file that we can't stat */
 
-static char *fullpath;      /* contains full pathname for every file */
 static size_t pathlen;
 
 static int                  /* we return whatever func() returns */
 myftw(char *pathname, Myfunc *func)
 {
-    fullpath = path_alloc(&pathlen);    /* malloc PATH_MAX+1 bytes */
-                                        /* ({Prog pathalloc}) */
-    if (pathlen <= strlen(pathname)) {
-        pathlen = strlen(pathname) * 2;
-        if ((fullpath = realloc(fullpath, pathlen)) == NULL)
-            err_sys("realloc failed");
+    /** Try to split pathname into (directory, last_part) **/
+    if (chdir(pathname) == -1) {
+        err_sys("Can't chdir into %s", pathname);
     }
-    strcpy(fullpath, pathname);
-    return(dopath(func));
+    return dopath(func, ".");
 }
 
-/*
- * Descend through the hierarchy, starting at "fullpath".
- * If "fullpath" is anything other than a directory, we lstat() it,
- * call func(), and return.  For a directory, we call ourself
- * recursively for each name in the directory.
- */
 static int                  /* we return whatever func() returns */
-dopath(Myfunc* func)
+dopath(Myfunc* func, char *filename)
 {
     struct stat     statbuf;
     struct dirent   *dirp;
     DIR             *dp;
     int             ret, n;
 
-    if (lstat(fullpath, &statbuf) < 0)  /* stat error */
-        return(func(fullpath, &statbuf, FTW_NS));
+    if (lstat(filename, &statbuf) < 0)  /* stat error */
+        return(func(filename, &statbuf, FTW_NS));
     if (S_ISDIR(statbuf.st_mode) == 0)  /* not a directory */
-        return(func(fullpath, &statbuf, FTW_F));
+        return(func(filename, &statbuf, FTW_F));
 
     /*
      * It's a directory.  First call func() for the directory,
      * then process each filename in the directory.
      */
-    if ((ret = func(fullpath, &statbuf, FTW_D)) != 0)
+    if ((ret = func(filename, &statbuf, FTW_D)) != 0)
         return(ret);
 
-    n = strlen(fullpath);
-    if (n + NAME_MAX + 2 > pathlen) {   /* expand path buffer */
-        pathlen *= 2;
-        if ((fullpath = realloc(fullpath, pathlen)) == NULL)
-            err_sys("realloc failed");
+    if ((dp = opendir(filename)) == NULL)   /* can't read directory */
+        return(func(filename, &statbuf, FTW_DNR));
+
+    if (chdir(filename) == -1) {
+        err_ret("first chdir %s", filename);
+        return ret;
     }
-    fullpath[n++] = '/';
-    fullpath[n] = 0;
-
-    if ((dp = opendir(fullpath)) == NULL)   /* can't read directory */
-        return(func(fullpath, &statbuf, FTW_DNR));
-
     while ((dirp = readdir(dp)) != NULL) {
         if (strcmp(dirp->d_name, ".") == 0  ||
             strcmp(dirp->d_name, "..") == 0)
                 continue;       /* ignore dot and dot-dot */
-        strcpy(&fullpath[n], dirp->d_name); /* append name after "/" */
-        if ((ret = dopath(func)) != 0)      /* recursive */
+        if ((ret = dopath(func, dirp->d_name)) != 0)      /* recursive */
             break;  /* time to leave */
     }
-    fullpath[n-1] = 0;  /* erase everything from slash onward */
+    if (chdir("..") == -1) {
+        err_sys("chdir ..");
+    }
 
     if (closedir(dp) < 0)
-        err_ret("can't close directory %s", fullpath);
+        err_ret("can't close directory %s", filename);
     return(ret);
 }
 
