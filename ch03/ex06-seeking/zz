@@ -1,8 +1,7 @@
 [33m>> Checking [0m[32mfd#0[0m
 Can't get current position: Illegal seek
 FD_CLOEXEC: 0
-File status: O_RDWR
-Guessed file name: /dev/pts/0
+File statuhello thereuessed file name: /dev/pts/0
 [33m>> Checking [0m[32mfd#1[0m
 current_position: 76
 FD_CLOEXEC: 0
