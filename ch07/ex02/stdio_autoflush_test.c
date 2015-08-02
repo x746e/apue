@@ -2,11 +2,17 @@
 #include <unistd.h>
 #include <string.h>
 
-void main() {
+
+int main() {
     int i;
-    char tstr[] = "Outputting char by char";
-    for (i = 0; i < strlen(tstr); ++i) {
-        fputc(tstr[i], stderr);
+    char sout[] = "out";
+    char serr[] = "err";
+    for (i = 0; i < strlen(sout); ++i) {
+        fputc(sout[i], stdout);
+        sleep(1);
+    }
+    for (i = 0; i < strlen(serr); ++i) {
+        fputc(serr[i], stderr);
         sleep(1);
     }
 

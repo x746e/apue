@@ -13,7 +13,7 @@ int my_atexit(Exitfunc func) {
     return atexit(func);
 }
 
-void main() {
+int main() {
     if (my_atexit(greeter) != 0) {
         err_sys("atexit");
     };
