@@ -143,7 +143,7 @@ check_fd(int fd) {
 
     char link_target[PATH_MAX] = { 0 };
     int r;
-    #define prefix "/proc/self/fd/"
+    #define prefix "/dev/fd/"
     // Figure out chars needed for the fd number string representation.
     int chars;
     if (fd == 0) {
