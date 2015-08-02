@@ -1,7 +1,12 @@
 all: $(PROGS) .gitignore
 
+CFLAGS = -std=c99 -g
+INCLUDES = -I ../..
+
+CFILES += ../../apue.3e/lib/error.c 
+
 %: %.c
-	cc -std=c99 -g $@.c -o $@ -lm -I ../.. ../../apue.3e/lib/error.c $(cfiles)
+	cc $(CFLAGS) $(INCLUDES) $(CFILES) $(CFILES_$@) $< -o $@ $(LDFLAGS) $(LDFLAGS_$@)
 
 .gitignore: $(PROGS)
 	touch .gitignore
