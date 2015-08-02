@@ -6,6 +6,9 @@
 
 #define _POSIX_C_SOURCE 200809L
 
+// Not sure what's it exactly, but without that thing illumnis doesn't want to compile in C99 mode.
+#define _XPG6
+
 #if defined(SOLARIS)		/* Solaris 10 */
 #define _XOPEN_SOURCE 600
 #else
