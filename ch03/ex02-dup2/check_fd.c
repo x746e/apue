@@ -2,11 +2,10 @@
  * Function to print various information about a file descriptor.
  */
 #include "apue.h"
+#include <unistd.h>
 #include <stdio.h>
 #include <fcntl.h>
-#include <math.h>
 #include <limits.h>
-#include <assert.h>
 
 #define ANSI_COLOR_RED     "\x1b[31m"
 #define ANSI_COLOR_GREEN   "\x1b[32m"
@@ -83,33 +82,7 @@ check_fd(int fd) {
 #endif
     printf("\n");
 
-    char guessed_file_name[PATH_MAX];
+    char guessed_file_name[PATH_MAX] = { 0 };
     guess_file_name(fd, guessed_file_name, sizeof guessed_file_name);
-
-    // TODO: Move it to linux-specific file.
-    /*
-    char link_target[PATH_MAX] = { 0 };
-    int r;
-    #define prefix "/proc/self/fd/"
-    // Figure out chars needed for the fd number string representation.
-    int chars;
-    if (fd == 0) {
-        chars = 1;
-    } else {
-        chars = (int)floor(log10(fd));
-    }
-    size_t link_size = (sizeof prefix + chars + 1) * sizeof(char);
-    char *link;
-    if ((link = malloc(link_size)) == NULL) {
-        err_sys("malloc error for allocating link");
-    }
-    sprintf(link, prefix "%d", fd);
-    if ((r = readlink(link, link_target, PATH_MAX)) == -1) {
-        err_sys("readlink failure");
-    } else if (r > PATH_MAX - 1) {
-        err_quit("Cannot read link: link's size > PATH_MAX");
-    }
-    free(link);
-    */
     printf("Guessed file name: %s\n", guessed_file_name);
 }

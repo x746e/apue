@@ -1,3 +1,6 @@
+#ifndef __FreeBSD__
+#error "It doesn't really supposed to work not on FreeBSD"
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
