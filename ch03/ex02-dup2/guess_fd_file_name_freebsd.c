@@ -1,3 +1,6 @@
+/**
+ * Function to guess file name from file descriptor.  Uses FreeBSD's libprocstat(3) library.
+ */
 #ifndef __FreeBSD__
 #error "It doesn't really supposed to work not on FreeBSD"
 #endif
