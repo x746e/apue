@@ -1,6 +1,6 @@
 all: $(PROGS) .gitignore
 
-CFLAGS = -std=c99 -g
+CFLAGS = -std=c99 -g -Wall
 INCLUDES = -I ../..
 
 CFILES += ../../apue.3e/lib/error.c 

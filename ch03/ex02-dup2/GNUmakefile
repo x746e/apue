@@ -10,6 +10,10 @@ endif
 ifeq ($(UNAME),Linux)
     CFILES_check_fd = guess_fd_file_name_linux.c
 endif
+ifeq ($(UNAME),DragonFly)
+    LDFLAGS_check_fd = -lkvm
+    CFILES_check_fd = guess_fd_file_name_kvm.c
+endif
 
 
 include ../../common.mk
