@@ -19,16 +19,7 @@
 #define green(arg) ANSI_COLOR_GREEN arg ANSI_COLOR_RESET
 
 
-void check_fd(int);
 void guess_file_name(int fd, char *buf, int buflen);
-
-
-int
-main() {
-    check_fd(0);
-    check_fd(1);
-    check_fd(2);
-}
 
 
 void
