@@ -6,15 +6,12 @@ UNAME = $(shell uname)
 ifeq ($(UNAME),FreeBSD)
     LDFLAGS_check_fd = -lprocstat
     CFILES_check_fd = guess_fd_file_name_freebsd.c
-    # LDFLAGS_check_fd = -lkvm
-    # CFILES_check_fd = guess_fd_file_name_kvm.c
-endif
-ifeq ($(UNAME),Linux)
-    CFILES_check_fd = guess_fd_file_name_linux.c
-endif
-ifeq ($(UNAME),DragonFly)
-    LDFLAGS_check_fd = -lkvm
-    CFILES_check_fd = guess_fd_file_name_kvm.c
+else
+    ifeq ($(UNAME),Linux)
+	CFILES_check_fd = guess_fd_file_name_linux.c
+    else
+    	CFILES_check_fd = guess_fd_file_name_dummy.c
+    endif
 endif
 
 

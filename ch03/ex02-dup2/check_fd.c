@@ -84,5 +84,7 @@ check_fd(int fd) {
 
     char guessed_file_name[PATH_MAX] = { 0 };
     guess_file_name(fd, guessed_file_name, sizeof guessed_file_name);
-    printf("Guessed file name: %s\n", guessed_file_name);
+    if (strlen(guessed_file_name)) {
+        printf("Guessed file name: %s\n", guessed_file_name);
+    }
 }
