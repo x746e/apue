@@ -27,6 +27,7 @@ guess_file_name(int fd, char *buf, int buflen) {
     struct filestat_list *head;
     unsigned int cnt;
     prstat = procstat_open_sysctl();
+    //prstat = procstat_open_kvm(NULL, NULL);
 
     p = procstat_getprocs(prstat, KERN_PROC_PID, getpid(), &cnt);
     assert(cnt == 1);
