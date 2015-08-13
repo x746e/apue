@@ -1,4 +1,5 @@
-include ../../common.mk
+
+PROGS = mydup2 check_fd
 
 UNAME = $(shell uname)
 
@@ -13,19 +14,7 @@ else
     endif
 endif
 
+CFILES_mydup2 = check_fd.c $(GUESS_FD_FILE_NAME)
+CFILES_check_fd = check_fd_main.c $(GUESS_FD_FILE_NAME)
 
-check_fd: check_fd.c check_fd_main.c $(GUESS_FD_FILE_NAME)
-	cc $(CFLAGS) $(INCLUDES) $(CFILES) $? -o $@ $(LDFLAGS)
-
-mydup2: mydup2.c check_fd.c $(GUESS_FD_FILE_NAME)
-	cc $(CFLAGS) $(INCLUDES) $(CFILES) $? -o $@ $(LDFLAGS)
-
-
-.gitignore:
-	printf 'mydup2\ncheck_fd\n' >| .gitignore
-
-clean:
-	rm -f check_fd mydup2
-
-
-all: check_fd mydup2 .gitignore
+include ../../common.mk
