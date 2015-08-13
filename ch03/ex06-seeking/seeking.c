@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
     check_position(fd);
 
     char msg[] = "hello there";
-    printf("Writing %zd symbols\n", strlen(msg));
+    printf("Writing %lld symbols\n", (long long)strlen(msg));
     write(fd, msg, strlen(msg));
     check_position(fd);
 
@@ -56,7 +56,7 @@ void check_position(int fd) {
     if ((current_position = lseek(fd, 0, SEEK_CUR)) == -1) {
         err_ret("Can't get current position");
     } else {
-        printf("current_position: %zd\n", current_position);
+        printf("current_position: %lld\n", (long long)current_position);
     }
 }
 
@@ -67,7 +67,7 @@ void check_contents(int fd) {
     sys_chk(lseek(fd, 0, SEEK_SET));
 
     read(fd, buf, BUFSIZ);
-    printf("File contents (%zd bytes): %s\n", strlen(buf), buf);
+    printf("File contents (%lld bytes): %s\n", (long long)strlen(buf), buf);
 
     sys_chk(lseek(fd, saved_position, SEEK_SET));
 }
