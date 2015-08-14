@@ -9,7 +9,7 @@ from subprocess import Popen, check_output, STDOUT, check_call
 
 def test(doctest, debug=False):
     # chdir into test's directory
-    os.chdir(os.path.dirname(__file__))
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
     if debug:
         print(list(parse(doctest)))
@@ -40,38 +40,44 @@ def parse(doctest):
     yield (input, '\n'.join(output))
 
 
-def check(input, output, debug=False):
+def check(input, expected, debug=False):
     """
-    Execute input, check it matches output.
+    Execute input, check it matches expected.
     """
     def dprint(*args):
         if debug:
             print(*args)
     dprint('=' * 20)
+
     ellipsis = True
-    dprint(">> Going to run %s" % input)
+    normaliza_whitespace = True
+
+    dprint("Going to run '''%s'''" % input)
     actual = check_output(input + '; exit 0', stderr=STDOUT, shell=True)
-    dprint(">> Actually got %s" % actual)
+    dprint("Actually got '''%s'''" % actual)
+
+    # TODO: Escape special symbols.
+    expected = '^%s$' % expected
     if ellipsis:
-        output = '^' + output.replace('...', '.*', re.MULTILINE) + '$'
-        dprint('Input:  ' + input)
-        dprint('Output: ' + output)
-        dprint('Actual: ' + actual)
-        assert re.search(output, actual)
-    else:
-        assert output == actual
+        expected = expected.replace('...', '.*')
+    if normaliza_whitespace:
+        expected = re.sub(r' +', r' +', expected)
+
+    dprint("Expected: '''%s'''" % expected.strip())
+    assert re.search(expected, actual, re.MULTILINE), \
+            "%r didn't match %r" % (actual, expected)
+
     dprint(">> Success!")
 
 
 test(
 """\
 % rm -f foo bar
-% {make} clean all
-...
+% {make} --no-print-directory clean all
 ...
 % ./test-umask
 % ls -l foo bar
 -rw------- 1 tn tn 0 ... bar
 -rw-rw-rw- 1 tn tn 0 ... foo
-"""
+""", debug=False,
 )
