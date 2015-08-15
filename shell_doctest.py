@@ -49,8 +49,11 @@ def test(doctest, debug='-d' in sys.argv):
     os.chdir(os.path.dirname(os.path.abspath(sys._getframe(1).f_code.co_filename)))
     if debug:
         print(list(parse(doctest)))
-    for pair in parse(doctest):
-        check(*pair, debug=debug)
+    result = all(check(*pair, debug=debug)
+                 for pair in parse(doctest))
+    if not result:
+        exit(1)
+
 
 
 def parse(doctest):
@@ -109,6 +112,7 @@ def check(input, expected, debug=False):
             print(expected_re)
     if mismatch:
         C.p_red("### Mismatch ###")
+    return not mismatch
 
 
 def _escape(s):

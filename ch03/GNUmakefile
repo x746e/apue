@@ -6,7 +6,7 @@ $(EXERCISES):
 	$(MAKE) -C $@
 
 test:
-	for dir in $(EXERCISES); do \
+	@set -e; for dir in $(EXERCISES); do \
 		$(MAKE) -C $$dir test; \
 	done
 
