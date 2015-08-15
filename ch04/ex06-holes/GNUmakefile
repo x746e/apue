@@ -1,4 +1,4 @@
-PROGS = check-holes copy-holes make-file-with-holes-apue make-file-with-holes
+PROGS = check-holes copy-holes make-file-with-holes-apue make-file-with-holes print-block-n-hole-sizes
 CLEAN_FILES = file.hole
 
 all_and_file_hole: all file.hole

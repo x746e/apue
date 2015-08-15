@@ -2,6 +2,8 @@ from __future__ import print_function
 import os
 import re
 import sys
+import platform
+from itertools import count
 from pprint import pprint
 from subprocess import STDOUT
 try:
@@ -44,9 +46,22 @@ except ImportError:
 from colors import C
 
 
-def test(doctest, debug='-d' in sys.argv):
-    # chdir into test's directory
-    os.chdir(os.path.dirname(os.path.abspath(sys._getframe(1).f_code.co_filename)))
+def _default_debug():
+    return '-d' in sys.argv or 'D' in os.environ
+
+
+def tests(doctests, debug=_default_debug(), exclude=(), only=()):
+    for doctest in doctests:
+        test(doctest, debug, exclude, only)
+
+
+def test(doctest, debug=_default_debug(), exclude=(), only=()):
+    assert not (exclude and only)
+    if only and platform.system() not in only:
+        return
+    if platform.system() in exclude:
+        return
+    _cd_test_dir()
     if debug:
         print(list(parse(doctest)))
     result = all(check(*pair, debug=debug)
@@ -55,6 +70,23 @@ def test(doctest, debug='-d' in sys.argv):
         exit(1)
 
 
+def _cd_test_dir():
+    r = re.compile(r'ex\d+.*/test.py$')
+    for frame in _get_frames():
+        test_path = os.path.abspath(frame.f_code.co_filename)
+        if r.search(test_path):
+            os.chdir(os.path.dirname(test_path))
+            return
+    raise AssertionError("Couldn't find test's frame.  Is `_cd_test_dir` run "
+                         "from a test?")
+
+
+def _get_frames():
+    for i in count():
+        try:
+            yield sys._getframe(i)
+        except ValueError:
+            break
 
 def parse(doctest):
     """

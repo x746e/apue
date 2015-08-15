@@ -3,3 +3,4 @@ copy-holes
 make-file-with-holes-apue
 make-file-with-holes
 file.hole
+print-block-n-hole-sizes
