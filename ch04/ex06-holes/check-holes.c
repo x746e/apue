@@ -1,6 +1,6 @@
 // Needed for SEEK_HOLE and SEEK_DATA
 #define _GNU_SOURCE         // Linux
-#define __BSD_VISIBLE 1     // FreeBSD
+#define __BSD_VISIBLE 1     // FreeBSD, DragonFlyBSD
 #define __EXTENSIONS__      // Solaris
 
 #include "apue.h"
