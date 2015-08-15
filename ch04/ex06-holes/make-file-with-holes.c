@@ -16,12 +16,18 @@ int main (int argc, char *argv[]) {
     int fd;
     sys_chk(fd = open(argv[1], O_WRONLY | O_CREAT | O_TRUNC, FILE_MODE));
 
-    long hole_size = get_hole_size(fd);
-    char c;
-    for (c = 'a'; c <= 'c'; ++c) {
-        sys_chk(write(fd, &c, 1));
-        sys_chk(write(fd, "\n", 1));
-        sys_chk(lseek(fd, 2 * hole_size, SEEK_CUR));
+    //long hole_size = get_hole_size(fd);
+    // Use max block size across Linux/FreeBSD/Sunos (from Sunos).
+    long hole_size = 131072;
+    int num_holes = 2;
+    int i;
+    char *buf;
+    sys_ptr_chk(buf = malloc(hole_size));
+    memset(buf, 'z', hole_size);
+
+    for (i = 0; i < num_holes; i++) {
+        sys_chk(lseek(fd, hole_size, SEEK_CUR));
+        sys_chk(write(fd, buf, hole_size));
     }
 
     sys_chk(close(fd));
