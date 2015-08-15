@@ -35,7 +35,7 @@ int main (int argc, char *argv[]) {
  * on the platform).
  */
 long get_hole_size(int fd) {
-    long min_hole_size;
+    long min_hole_size = 0;
     blksize_t block_size;
 #ifdef _PC_MIN_HOLE_SIZE
     if ((min_hole_size = fpathconf(fd, _PC_MIN_HOLE_SIZE)) == -1) {
