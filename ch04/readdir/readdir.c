@@ -3,7 +3,7 @@
 #include <dirent.h>
 #include <errno.h>
 
-void main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {
     if (argc != 2) {
         err_quit("Usage: %s <directory>", argv[0]);
     }
@@ -54,4 +54,6 @@ void main(int argc, char *argv[]) {
     if (closedir(dir) == -1) {
         err_sys("Error while closing directory");
     }
+
+    return EXIT_SUCCESS;
 }
