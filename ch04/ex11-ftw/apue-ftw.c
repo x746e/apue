@@ -2,6 +2,12 @@
 #include <dirent.h>
 #include <limits.h>
 
+#ifndef NAME_MAX
+// SunOs doesn't define NAME_MAX, see <limits.h> for the explanation (which
+// make sense, but the use of that value in this file is safe).
+#define      NAME_MAX        14
+#endif
+
 /* function type that is called for each filename */
 typedef int Myfunc(const char *, const struct stat *, int);
 
