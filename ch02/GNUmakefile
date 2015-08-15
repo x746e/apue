@@ -1,17 +1,2 @@
-EXERCISES := $(wildcard ex*)
-
-all: $(EXERCISES)
-
-$(EXERCISES):
-	$(MAKE) -C $@
-
-test:
-	@set -e; for dir in $(EXERCISES); do \
-		if [ -f $$dir/GNUmakefile ]; then \
-			$(MAKE) -C $$dir test; \
-		fi \
-	done
-
-
-.PHONY: all $(EXERCISES)
-
+SUBDIRS := $(shell for d in ex*; do if [ -f "$$d/GNUmakefile" ]; then echo $$d; fi; done)
+include ../recurse.mk
