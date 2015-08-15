@@ -1,4 +1,5 @@
 #define _BSD_SOURCE
+#define __BSD_VISIBLE 1
 #include "apue.h"
 #include <dirent.h>
 #include <errno.h>
