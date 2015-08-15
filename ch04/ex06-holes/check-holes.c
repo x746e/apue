@@ -17,7 +17,12 @@ int main(int argc, char *argv[]) {
     int fd;
     sys_chk(fd = open(argv[1], O_RDONLY));
 
-#ifdef _PC_MIN_HOLE_SIZE  // FreeBSD, DragonFly
+// Defined and works on FreeBSD (10.1).
+// Defined and works on Solaris (openindiana 5.11).
+// Defined on DragonFly (4.2).  Doesn't work, returns EINVAL.  Though lseek(2)
+// and pathconf(2) doesn't mention holes at all.
+// Not defined on Linux.
+#ifdef _PC_MIN_HOLE_SIZE
     long min_hole_size;
     errno = 0;
     if ((min_hole_size = fpathconf(fd, _PC_MIN_HOLE_SIZE)) == -1) {
@@ -25,7 +30,6 @@ int main(int argc, char *argv[]) {
             printf("MIN_HOLE_SIZE: no limit\n");
         } else {
             perror("fpathconf(fd, _PC_MIN_HOLE_SIZE)");
-            exit(EXIT_FAILURE);
         }
     }
     printf("MIN_HOLE_SIZE: %ld\n", min_hole_size);
