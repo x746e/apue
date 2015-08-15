@@ -1,6 +1,7 @@
 // Needed for SEEK_HOLE and SEEK_DATA
-#define _GNU_SOURCE
-#define __BSD_VISIBLE 1
+#define _GNU_SOURCE         // Linux
+#define __BSD_VISIBLE 1     // FreeBSD
+#define __EXTENSIONS__      // Solaris
 
 #include "apue.h"
 #include "common.h"
@@ -26,7 +27,8 @@ int main(int argc, char *argv[]) {
         if (hole_start < file_end) {
             sys_chk(current_offset = hole_end
                         = lseek(fd, hole_start, SEEK_DATA));
-            printf("Hole from %zd to %zd\n", hole_start, hole_end);
+            printf("Hole from %lld to %lld\n",
+                    (long long)hole_start, (long long)hole_end);
         }
     }
 }
