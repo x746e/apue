@@ -5,7 +5,7 @@ PYTHON = $(shell which python2.7 > /dev/null && which python2.7 || which python)
 
 
 test:
-	$(PYTHON) test.py
+	PYTHONPATH=../.. $(PYTHON) test.py
 
 
 include ../../common.mk
