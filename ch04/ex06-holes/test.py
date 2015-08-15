@@ -1,4 +1,4 @@
-from shell_doctest import tests
+from shell_doctest import tests, test
 
 tests([
 # check-holes should report no holes in a file.nohole
@@ -14,12 +14,6 @@ tests([
 Hole from 0 to 131072
 Hole from 262144 to 393216
 """,
-# Check that cp doesn't preserve holes.
-"""\
-% cp file.hole file.hole.cp_copy
-% ./check-holes file.hole.cp_copy
-% rm file.hole.cp_copy
-""",
 # Check that ./copy-holes preserve holes.
 """\
 % ./copy-holes file.hole file.hole.copy
@@ -29,4 +23,13 @@ Hole from 262144 to 393216
 % rm file.hole.copy
 """
 ], exclude=('DragonFly',) # At least when using HAMMER fs.
+)
+
+test(
+# Check that cp doesn't preserve holes.
+"""\
+% cp file.hole file.hole.cp_copy
+% ./check-holes file.hole.cp_copy
+% rm file.hole.cp_copy
+""", exclude=('Linux', 'DragonFly')  # cp on linux actually does.
 )
