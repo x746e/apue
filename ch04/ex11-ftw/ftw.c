@@ -50,8 +50,6 @@ main(int argc, char *argv[])
 #define FTW_DNR 3       /* directory that can't be read */
 #define FTW_NS  4       /* file that we can't stat */
 
-static size_t pathlen;
-
 static int                  /* we return whatever func() returns */
 myftw(char *pathname, Myfunc *func)
 {
@@ -68,7 +66,7 @@ dopath(Myfunc* func, char *filename)
     struct stat     statbuf;
     struct dirent   *dirp;
     DIR             *dp;
-    int             ret, n;
+    int             ret;
 
     if (lstat(filename, &statbuf) < 0)  /* stat error */
         return(func(filename, &statbuf, FTW_NS));
