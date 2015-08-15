@@ -11,14 +11,16 @@ CFILES += ../../apue.3e/lib/error.c
 	cc $(CFLAGS) $(INCLUDES) $(CFILES) $(CFILES_$@) $< -o $@ $(LDFLAGS) $(LDFLAGS_$@)
 
 test:
-	[ -f test.py ] && PYTHONPATH=../.. $(PYTHON) test.py
+	if [ -f test.py ]; then \
+		PYTHONPATH=../.. $(PYTHON) test.py ; \
+	fi
 
 .gitignore: $(PROGS)
 	touch .gitignore
 	for prog in $(PROGS); do \
-	    if ! grep -sq ^$$prog\$$ .gitignore$ ; then \
-		echo $$prog >> .gitignore ; \
-	    fi \
+		if ! grep -sq ^$$prog\$$ .gitignore$ ; then \
+			echo $$prog >> .gitignore ; \
+		fi \
 	done
 
 clean:

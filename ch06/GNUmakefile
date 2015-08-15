@@ -7,7 +7,9 @@ $(EXERCISES):
 
 test:
 	@set -e; for dir in $(EXERCISES); do \
-		$(MAKE) -C $$dir test; \
+		if [ -f $$dir/GNUmakefile ]; then \
+			$(MAKE) -C $$dir test; \
+		fi \
 	done
 
 
