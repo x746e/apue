@@ -17,6 +17,5 @@ test(
 ../ex16-deep-tree: directory
 ../readdir: directory
 ../root: directory
-../usr-local: directory
 """, debug=False,
 )
