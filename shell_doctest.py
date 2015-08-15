@@ -44,7 +44,7 @@ except ImportError:
 from colors import C
 
 
-def test(doctest, debug=False):
+def test(doctest, debug='-d' in sys.argv):
     # chdir into test's directory
     os.chdir(os.path.dirname(os.path.abspath(sys._getframe(1).f_code.co_filename)))
     if debug:
@@ -81,15 +81,14 @@ def check(input, expected, debug=False):
     Execute input, check it matches expected.
     """
     if debug:
-        dprint('=' * 20)
+        print('=' * 20)
 
     ellipsis = True
     normaliza_whitespace = True
 
     actual = check_output(input + '; exit 0', stderr=STDOUT, shell=True)
 
-    # TODO: Escape special symbols.
-    expected_re = '^%s$' % expected
+    expected_re = '^%s$' % _escape(expected)
     if ellipsis:
         expected_re = _replace_ellipsis(expected_re)
     if normaliza_whitespace:
@@ -105,8 +104,21 @@ def check(input, expected, debug=False):
         print(actual.strip())
         C.p_yellow("Expected:")
         print(expected.strip())
+        if debug:
+            C.p_yellow("Expected regex:")
+            print(expected_re)
     if mismatch:
         C.p_red("### Mismatch ###")
+
+
+def _escape(s):
+    """
+    Replace special symbols in s, so that they match their literal meaning in
+    regex.
+    """
+    for sym in '\\.^$*+?{}[]|()':
+        s = s.replace(sym, '\\' + sym)
+    return s
 
 
 def _replace_ellipsis(expected):
@@ -120,11 +132,13 @@ def _replace_ellipsis(expected):
     """
     lines = expected.splitlines()
     def itr():
+        # `...` will be already escaped.
+        ELLIPSIS = _escape('...')
         for line, next_line in zip(lines, lines[1:] + ['']):
-            if line == '...':
+            if line == ELLIPSIS:
                 continue
-            line = line.replace('...', '.*')
-            if next_line == '...':
+            line = line.replace(ELLIPSIS, '.*')
+            if next_line == ELLIPSIS:
                 line += '.*'
             yield line
     return '\n'.join(itr())
