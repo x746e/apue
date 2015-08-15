@@ -4,7 +4,7 @@ test(
 """\
 % {make} --no-print-directory clean all
 ...
-% rm output.ftw output.apue-ftw
+% rm -f output.ftw output.apue-ftw
 % touch output.ftw output.apue-ftw
 % sudo ./ftw / >| output.ftw
 % sudo ./apue-ftw / >| output.apue-ftw
