@@ -99,7 +99,7 @@ def check(input, expected, debug=False):
         expected = re.sub(r' +', r' +', expected)
 
     dprint("Expected: '''%s'''" % expected.strip())
-    assert re.search(expected, actual, re.MULTILINE), \
+    assert re.match(expected, actual, re.MULTILINE), \
             "%r didn't match %r" % (actual, expected)
 
     dprint(">> Success!")
