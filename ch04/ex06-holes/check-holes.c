@@ -1,7 +1,9 @@
+// Needed for SEEK_HOLE and SEEK_DATA
 #define _GNU_SOURCE
+#define __BSD_VISIBLE 1
+
 #include "apue.h"
 #include "common.h"
-#include <unistd.h>
 #include <fcntl.h>
 
 
