@@ -3,7 +3,6 @@ import os
 import re
 import sys
 from pprint import pprint
-
 from subprocess import STDOUT
 try:
     from subprocess import check_output
@@ -42,6 +41,8 @@ except ImportError:
             raise CalledProcessError(retcode, cmd, output=output)
         return output
 
+from colors import C
+
 
 def test(doctest, debug=False):
     # chdir into test's directory
@@ -79,27 +80,51 @@ def check(input, expected, debug=False):
     """
     Execute input, check it matches expected.
     """
-    def dprint(*args):
-        if debug:
-            print(*args)
-    dprint('=' * 20)
+    if debug:
+        dprint('=' * 20)
 
     ellipsis = True
     normaliza_whitespace = True
 
-    dprint("Going to run '''%s'''" % input)
     actual = check_output(input + '; exit 0', stderr=STDOUT, shell=True)
-    dprint("Actually got '''%s'''" % actual)
 
     # TODO: Escape special symbols.
-    expected = '^%s$' % expected
+    expected_re = '^%s$' % expected
     if ellipsis:
-        expected = expected.replace('...', '.*')
+        expected_re = _replace_ellipsis(expected_re)
     if normaliza_whitespace:
-        expected = re.sub(r' +', r' +', expected)
+        expected_re = re.sub(r' +', r' +', expected_re)
 
-    dprint("Expected: '''%s'''" % expected.strip())
-    assert re.match(expected, actual, re.MULTILINE), \
-            "%r didn't match %r" % (actual, expected)
+    mismatch = not re.match(expected_re, actual, re.MULTILINE | re.DOTALL)
+    if mismatch:
+        C.p_red("### Mismatch ###")
+    if mismatch or debug:
+        C.p_yellow("Ran:")
+        print(input.strip())
+        C.p_yellow("Actually got:")
+        print(actual.strip())
+        C.p_yellow("Expected:")
+        print(expected.strip())
+    if mismatch:
+        C.p_red("### Mismatch ###")
 
-    dprint(">> Success!")
+
+def _replace_ellipsis(expected):
+    """
+    Replace `...` by `.*`.
+
+    If `...` is the only contents of the line, it may mean that the line is
+    optional.  But if we just replace `...` by `.*`, `\n` before and after `...`
+    will not match.  So the function is removing the line with only `...`,
+    remove that line and add `.*` to the end of previous one.
+    """
+    lines = expected.splitlines()
+    def itr():
+        for line, next_line in zip(lines, lines[1:] + ['']):
+            if line == '...':
+                continue
+            line = line.replace('...', '.*')
+            if next_line == '...':
+                line += '.*'
+            yield line
+    return '\n'.join(itr())
