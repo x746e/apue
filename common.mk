@@ -11,7 +11,7 @@ CFILES += ../../apue.3e/lib/error.c
 	cc $(CFLAGS) $(INCLUDES) $(CFILES) $(CFILES_$@) $< -o $@ $(LDFLAGS) $(LDFLAGS_$@)
 
 test:
-	PYTHONPATH=../.. $(PYTHON) test.py
+	[ -f test.py ] && PYTHONPATH=../.. $(PYTHON) test.py
 
 .gitignore: $(PROGS)
 	touch .gitignore

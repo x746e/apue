@@ -15,6 +15,7 @@ test(
 ../ex09: directory
 ../ex11-ftw: directory
 ../ex16-deep-tree: directory
+../GNUmakefile: regular
 ../readdir: directory
 ../root: directory
 """, debug=False,
