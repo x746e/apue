@@ -24,6 +24,6 @@ test:
 	done
 
 clean:
-	rm -f $(PROGS)
+	rm -f $(PROGS) $(CLEAN_FILES)
 
 .SILENT: .gitignore

@@ -21,7 +21,7 @@ int main (int argc, char *argv[]) {
     // Open files.
     int src_fd, dst_fd;
     sys_chk(src_fd = open(argv[1], O_RDONLY));
-    sys_chk(dst_fd = open(argv[2], O_WRONLY | O_CREAT | O_TRUNC, MODE_666));
+    sys_chk(dst_fd = open(argv[2], O_WRONLY | O_CREAT | O_TRUNC, FILE_MODE));
 
     // Figure out block size of the target file.
     struct stat st;
