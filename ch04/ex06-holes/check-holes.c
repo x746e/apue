@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
 
     struct stat stat;
     sys_chk(fstat(fd, &stat));
-    printf("Block size: %d\n", stat.st_blksize);
+    printf("Block size: %lld\n", (long long)stat.st_blksize);
 
     off_t file_end = lseek(fd, 0, SEEK_END);
     off_t current_offset, hole_start, hole_end;
