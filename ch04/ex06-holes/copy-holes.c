@@ -13,7 +13,7 @@
 bool is_all_zeros(char *buffer, size_t len);
 
 
-void main (int argc, char *argv[]) {
+int main (int argc, char *argv[]) {
     if (argc != 3) {
         err_quit("Usage: %s <source> <dest>", argv[0]);
     }

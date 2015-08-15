@@ -5,7 +5,7 @@
 #include <fcntl.h>
 
 
-void main (int argc, char *argv[]) {
+int main (int argc, char *argv[]) {
     if (argc != 2) {
         err_quit("Usage: %s <file-to-create>", argv[0]);
     }
