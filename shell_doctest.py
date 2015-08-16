@@ -126,6 +126,8 @@ def check(input, expected, debug=False):
     normaliza_whitespace = True
 
     actual = check_output(input + '; exit 0', stderr=STDOUT, shell=True)
+    if normaliza_whitespace:
+        actual = actual.replace('\t', ' ' * 8)
 
     expected_re = '^%s$' % _escape(expected)
     if ellipsis:
@@ -140,9 +142,9 @@ def check(input, expected, debug=False):
         C.p_yellow("Ran:")
         print(input.strip())
         C.p_yellow("Actually got:")
-        print(actual.strip())
+        print(actual)
         C.p_yellow("Expected:")
-        print(expected.strip())
+        print(expected)
         if debug:
             C.p_yellow("Expected regex:")
             print(expected_re)

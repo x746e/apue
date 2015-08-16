@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
     errno = 0;
     while ((ent = getspent())) {
         ++i;
-        printf("%20s%30s\n", ent->sp_namp, ent->sp_pwdp);
+        printf("%20s\t%30s\n", ent->sp_namp, ent->sp_pwdp);
         errno = 0;
     }
     if (ent == NULL && errno != 0) {
@@ -20,6 +20,6 @@ int main(int argc, char *argv[]) {
     }
     endspent();
 
-    printf("%d entries overall in /etc/shadow", i);
+    printf("%d entries overall in /etc/shadow\n", i);
     return EXIT_SUCCESS;
 }
