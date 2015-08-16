@@ -58,8 +58,12 @@ def tests(doctests, debug=_default_debug(), exclude=(), only=()):
 def test(doctest, debug=_default_debug(), exclude=(), only=()):
     assert not (exclude and only)
     if only and platform.system() not in only:
+        if debug:
+            print("Skipping test on %s" % platform.system())
         return
     if platform.system() in exclude:
+        if debug:
+            print("Skipping test on %s" % platform.system())
         return
     _cd_test_dir()
     if debug:
