@@ -24,7 +24,8 @@ int main(int argc, char *argv[]) {
         } else if (ent == NULL) {
             break;
         } else {
-            printf("%zd\t%s", ent->d_ino, ent->d_name);
+            printf("%lld\t%s", (long long)ent->d_ino, ent->d_name);
+#ifdef DT_BLK
             switch (ent->d_type) {
                 case DT_BLK:
                     printf("\tblock device");
@@ -48,6 +49,7 @@ int main(int argc, char *argv[]) {
                     printf("\tUNIX socket");
                     break;
             }
+#endif
             printf("\n");
         }
     }
