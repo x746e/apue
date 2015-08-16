@@ -10,16 +10,16 @@ int main(int argc, char *argv[]) {
 
     setspent();
     errno = 0;
-    while (ent = getspent()) {
+    while ((ent = getspent())) {
         ++i;
         printf("%20s%30s\n", ent->sp_namp, ent->sp_pwdp);
         errno = 0;
     }
-    if (ent == NULL) {
+    if (ent == NULL && errno != 0) {
         err_sys("getspent");
     }
     endspent();
 
     printf("%d entries overall in /etc/shadow", i);
-    return 0;
+    return EXIT_SUCCESS;
 }
