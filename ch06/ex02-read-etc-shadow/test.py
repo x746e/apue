@@ -8,8 +8,6 @@ test(
                 root    $...
 ...
                   tn    $...
-... entries overall in /etc/shadow
-""",
-# Only some systems have spwd APIs.
-only=('SunOS', 'Linux')
+... password entries read
+"""
 )
