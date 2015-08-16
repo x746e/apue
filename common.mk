@@ -1,3 +1,5 @@
+.PHONY: test clean
+
 all: $(PROGS) .gitignore
 
 CFLAGS = -std=c99 -g -Wall

@@ -1,3 +1,5 @@
-PROGS = test
+tst: tst.c
+	cc -g tst.c -o tst
 
-include ../../common.mk
+clean:
+	rm tst
