@@ -1,9 +1,9 @@
 #include "apue.h"
 #include <stdio.h>
-#include <shadow.h>
 #include <errno.h>
 
-
+#if defined(__sun__) || defined(__linux__)
+#include <shadow.h>
 int main(int argc, char *argv[]) {
     int i = 0;
     struct spwd *ent;
@@ -23,3 +23,5 @@ int main(int argc, char *argv[]) {
     printf("%d entries overall in /etc/shadow\n", i);
     return EXIT_SUCCESS;
 }
+#else
+#endif
