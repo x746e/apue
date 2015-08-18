@@ -20,7 +20,7 @@
 #endif
 
 
-void print_ids() {
+int print_ids() {
     struct passwd *pwent;
     struct group *grent;
 
@@ -33,6 +33,7 @@ void print_ids() {
 
     /** Different user ids */
     uid_t real_uid = getuid();
+    // TODO: To distinguish between nonexistend user and error we need to set `errno=0` beforehand.
     sys_ptr_chk(pwent = getpwuid(real_uid));
     char *real_uname = strdupa(pwent->pw_name);
 
@@ -71,11 +72,15 @@ void print_ids() {
     printf("Saved user ID: %d (%s)\n", saved_gid, saved_gname);
 
 
-    /** etc */
+    /** else */
     printf("\n");
     if (issetugid()) {
         printf("Process is tainted\n");
     } else {
         printf("Process is *not* tainted\n");
     }
+
+    return EXIT_SUCCESS;
 }
+
+// getresuid
