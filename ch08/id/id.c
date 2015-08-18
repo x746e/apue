@@ -10,7 +10,7 @@
 #include "common.h"
 
 
-void main() {
+int main() {
     struct passwd *pwent;
     struct group *grent;
 
@@ -44,4 +44,6 @@ void main() {
     printf("\n");
     printf("Real group ID: %d (%s)\n", gid, real_gname);
     printf("Effective group ID: %d (%s)\n", egid, effective_gname);
+
+    return EXIT_SUCCESS;
 }

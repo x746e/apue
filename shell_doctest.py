@@ -75,7 +75,7 @@ def test(doctest, debug=_default_debug(), exclude=(), only=()):
 
 
 def _cd_test_dir():
-    r = re.compile(r'ex\d+.*/test.py$')
+    r = re.compile(r'\btest.py$')
     for frame in _get_frames():
         test_path = os.path.abspath(frame.f_code.co_filename)
         if r.search(test_path):
