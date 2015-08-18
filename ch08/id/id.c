@@ -9,6 +9,13 @@
 #include "apue.h"
 #include "common.h"
 
+#ifndef __linux__
+#define strdupa(__str) \
+    strncpy(alloca(strlen(__str) + 1), \
+            __str, \
+            strlen(__str) + 1);
+#endif
+
 
 int main() {
     struct passwd *pwent;

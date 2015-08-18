@@ -7,6 +7,7 @@ tests([
 ...
 """,
 # Run as normal user.
+# uid is `100...` because sometimes it's 1000 (linux), and sometimes 1001 (fbsd).
 """\
 % ./id
 Process ID: ...
@@ -14,10 +15,10 @@ Parent PID: ...
 Process group ID: ...
 Session ID: ...
 
-Real user ID: 1000 (tn)
-Effective user ID: 1000 (tn)
+Real user ID: 100... (tn)
+Effective user ID: 100... (tn)
 
 Real group ID: 1000 (tn)
-Effective group ID: 1000 (tn)
+Effective group ID: 100... (tn)
 """
 ])
