@@ -29,6 +29,5 @@ bool is_supported(int sysconf_option) {
             return false;
         }
     }
-    printf("sysconf returned %d\n", result);
     return result;
 }
