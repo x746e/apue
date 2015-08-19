@@ -25,6 +25,11 @@
 #endif
 
 
+#if defined(__FreeBSD__) || defined(__DragonFly__) || defined(__sun__)
+#define has_issetugid
+#endif
+
+
 int print_ids() {
     struct passwd *pwent;
     struct group *grent;
@@ -83,11 +88,13 @@ int print_ids() {
 
     /** else */
     printf("\n");
+#ifdef has_issetugid
     if (issetugid()) {
         printf("Process is tainted\n");
     } else {
         printf("Process is *not* tainted\n");
     }
+#endif
 
     return EXIT_SUCCESS;
 }
