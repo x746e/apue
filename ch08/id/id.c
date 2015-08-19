@@ -20,6 +20,11 @@
 #endif
 
 
+#if defined(__FreeBSD__) || defined(__DragonFly__) || defined(__linux__)
+#define has_getresuid
+#endif
+
+
 int main() {
     struct passwd *pwent;
     struct group *grent;
@@ -44,11 +49,13 @@ int main() {
     printf("Real user ID: %d (%s)\n", real_uid, real_uname);
     printf("Effective user ID: %d (%s)\n", effective_uid, effective_uname);
 
+#ifdef has_getresuid
     uid_t _u1, _u2, saved_uid;
     sys_chk(getresuid(&_u1, &_u2, &saved_uid));
     sys_ptr_chk(pwent = getpwuid(saved_uid));
     char *saved_uname = strdupa(pwent->pw_name);
     printf("Saved user ID: %d (%s)\n", saved_uid, saved_uname);
+#endif
 
 
     /** Different group ids */
@@ -64,11 +71,13 @@ int main() {
     printf("Real group ID: %d (%s)\n", real_gid, real_gname);
     printf("Effective group ID: %d (%s)\n", effective_gid, effective_gname);
 
+#ifdef has_getresuid
     gid_t _g1, _g2, saved_gid;
     sys_chk(getresgid(&_g1, &_g2, &saved_gid));
     sys_ptr_chk(grent = getgrgid(saved_gid));
     char *saved_gname = strdupa(grent->gr_name);
     printf("Saved user ID: %d (%s)\n", saved_gid, saved_gname);
+#endif
 
 
     /** else */
