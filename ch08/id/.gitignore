@@ -1,3 +1,6 @@
 id
 has_posix_saved_ids
 check_setuid
+get_sunos_saved_suid
+print_ids.c
+print_ids
