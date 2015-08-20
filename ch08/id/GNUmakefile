@@ -1,6 +1,5 @@
-#PROGS = has_posix_saved_ids check_setuid get_sunos_saved_suid
-PROGS = print_ids
+PROGS = has_posix_saved_ids check_setuid
 
-#CFILES += print_ids.c
+CFILES += print_ids.c
 
 include ../../common.mk

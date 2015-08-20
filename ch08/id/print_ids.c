@@ -7,6 +7,7 @@
 #include <pwd.h>
 #include <string.h>
 #include <limits.h>
+#include <errno.h>
 #ifdef __sun__
 #include <alloca.h>
 #include <sys/signal.h>
@@ -71,6 +72,19 @@ void get_user_ids(uid_t *real, uid_t *effective, uid_t *saved) {
 #endif
 #endif
 
+#define GET_USER_NAME(__uid, __uname) \
+    errno = 0; \
+    if ((pwent = getpwuid(__uid)) == NULL) { \
+        if (errno != 0) { \
+            perror("getpwuid"); \
+            exit(EXIT_FAILURE); \
+        } else { \
+            __uname = "NO_SUCH_USER"; \
+        } \
+    } else { \
+        __uname = strdupa(pwent->pw_name); \
+    }
+
 
 void print_ids() {
     struct passwd *pwent;
@@ -81,41 +95,32 @@ void print_ids() {
     printf("Process group ID: %lld\n", (long long)getpgrp());
     printf("Session ID: %lld\n", (long long)getsid(getpid()));
     
-
     /** Different user ids */
     uid_t real_uid, effective_uid, saved_uid;
     get_user_ids(&real_uid, &effective_uid, &saved_uid);
 
-    // TODO: To distinguish between nonexistend user and error we need to set `errno=0` beforehand.
-    sys_ptr_chk(pwent = getpwuid(real_uid));
-    char *real_uname = strdupa(pwent->pw_name);
+    char *real_uname;
+    GET_USER_NAME(real_uid, real_uname);
 
-    sys_ptr_chk(pwent = getpwuid(effective_uid));
-    char *effective_uname = strdupa(pwent->pw_name);
+    char *effective_uname;
+    GET_USER_NAME(effective_uid, effective_uname);
 
     // TODO: Handle case when we can't get saved uid.
-    sys_ptr_chk(pwent = getpwuid(saved_uid));
-    char *saved_uname = strdupa(pwent->pw_name);
+    char *saved_uname;
+    GET_USER_NAME(saved_uid, saved_uname);
 
     printf("\n");
     printf("Real user ID: %d (%s)\n", real_uid, real_uname);
     printf("Effective user ID: %d (%s)\n", effective_uid, effective_uname);
     printf("Saved user ID: %d (%s)\n", saved_uid, saved_uname);
 
-
     /** else */
-    printf("\n");
 #ifdef has_issetugid
+    printf("\n");
     if (issetugid()) {
         printf("Process is tainted\n");
     } else {
         printf("Process is *not* tainted\n");
     }
 #endif
-}
-
-int main() {
-    print_ids();
-
-    return EXIT_SUCCESS;
 }
