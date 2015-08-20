@@ -153,14 +153,14 @@ Real user ID: 10... (tn)
 Effective user ID: 1 (daemon)
 Saved user ID: 1 (daemon)
 """,
-# And setuid to $UID should just set euid $UID
+# And seteuid to $UID should just set euid $UID
 """\
-% ./check_setuid $(id -ur)
+% ./check_setuid -e $(id -ur)
 Real user ID: 10... (tn)
 Effective user ID: 1 (daemon)
 Saved user ID: 1 (daemon)
 
-Calling setuid(10...)
+Calling seteuid(10...)
 
 Real user ID: 10... (tn)
 Effective user ID: 10... (tn)
