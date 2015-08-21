@@ -36,7 +36,7 @@ Saved user ID: 1 (daemon)
 # And setuid to $UID should leave saved suid as daemon
 """\
 % ./check_setuid $(id -ur)
-Calling setuid(101)
+Calling setuid(10...)
 ...
 
 Real user ID: 10... (tn)
