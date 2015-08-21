@@ -1,2 +1,3 @@
-* Check saved IDS
-* Check setuid / setgid
+* Check settings effective uid by seteuid
+* Check swapping euid and ruid by setreuid
+* Check switching (effective) uid to/from privileged one.

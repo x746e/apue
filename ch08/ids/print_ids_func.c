@@ -17,6 +17,7 @@
 #include "apue.h"
 #include "common.h"
 
+// TODO: Move to common.h
 #if !defined(__linux__) && !defined(strdupa)
 #define strdupa(__str) \
     strncpy(alloca(strlen(__str) + 1), \
