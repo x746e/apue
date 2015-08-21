@@ -9,13 +9,15 @@ tests([
 # Run as user "daemon".
 """\
 % sudo ./check_setuid 1
+Real user ID: 0 (root)
+Effective user ID: 0 (root)
+Saved user ID: 0 (root)
+
 Calling setuid(1)
-...
 
 Real user ID: 1 (daemon)
 Effective user ID: 1 (daemon)
 Saved user ID: 1 (daemon)
-...
 """,
 # Make file setuid daemon
 """\
@@ -25,19 +27,24 @@ Saved user ID: 1 (daemon)
 # Now setuid to daemon shoudn't change anything
 """\
 % ./check_setuid 1
+Real user ID: 10... (tn)
+Effective user ID: 1 (daemon)
+Saved user ID: 1 (daemon)
+
 Calling setuid(1)
-...
 
 Real user ID: 10... (tn)
 Effective user ID: 1 (daemon)
 Saved user ID: 1 (daemon)
-...
 """,
 # And setuid to $UID should leave saved suid as daemon
 """\
 % ./check_setuid $(id -ur)
+Real user ID: 10... (tn)
+Effective user ID: 1 (daemon)
+Saved user ID: 1 (daemon)
+
 Calling setuid(10...)
-...
 
 Real user ID: 10... (tn)
 Effective user ID: 10... (tn)

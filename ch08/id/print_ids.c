@@ -89,13 +89,6 @@ void get_user_ids(uid_t *real, uid_t *effective, uid_t *saved) {
 void print_ids() {
     struct passwd *pwent;
 
-    /** Different process ids */
-    printf("Process ID: %lld\n", (long long)getpid());
-    printf("Parent PID: %lld\n", (long long)getppid());
-    printf("Process group ID: %lld\n", (long long)getpgrp());
-    printf("Session ID: %lld\n", (long long)getsid(getpid()));
-    
-    /** Different user ids */
     uid_t real_uid, effective_uid, saved_uid;
     get_user_ids(&real_uid, &effective_uid, &saved_uid);
 
@@ -109,12 +102,12 @@ void print_ids() {
     char *saved_uname;
     GET_USER_NAME(saved_uid, saved_uname);
 
-    printf("\n");
     printf("Real user ID: %d (%s)\n", real_uid, real_uname);
     printf("Effective user ID: %d (%s)\n", effective_uid, effective_uname);
     printf("Saved user ID: %d (%s)\n", saved_uid, saved_uname);
 
     /** else */
+    /*
 #ifdef has_issetugid
     printf("\n");
     if (issetugid()) {
@@ -123,4 +116,5 @@ void print_ids() {
         printf("Process is *not* tainted\n");
     }
 #endif
+    */
 }
