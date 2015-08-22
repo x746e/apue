@@ -1,3 +1,3 @@
-PROGS = vfork1
+PROGS = vfork1 vfork1-apue
 
 include ../../common.mk
