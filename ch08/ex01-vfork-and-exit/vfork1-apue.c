@@ -1,4 +1,5 @@
 #define _BSD_SOURCE
+#define __BSD_VISIBLE 1
 #include "apue.h"
 
 int     globvar = 6;        /* external variable in initialized data */
