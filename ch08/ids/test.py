@@ -1,17 +1,16 @@
-from shell_doctest import tests
+from shell_doctest import tests, test
 
-# TODO: setuid under root seems to be the same, merge that part of tests
 
-##
-# Setuid on sunos and linux
-tests([
 # Rebuild.
-"""\
+test("""\
 % {make} --no-print-directory clean all
 ...
-""",
-# Run as user "daemon".
-"""\
+""")
+
+
+##
+# Setuid under root should set all three uids.
+test("""\
 % sudo ./check_setuid 1
 Real user ID: 0 (root)
 Effective user ID: 0 (root)
@@ -22,7 +21,12 @@ Calling setuid(1)
 Real user ID: 1 (daemon)
 Effective user ID: 1 (daemon)
 Saved user ID: 1 (daemon)
-""",
+""")
+
+
+##
+# Setuid on sunos and linux
+tests([
 # Make file setuid daemon
 """\
 % sudo chown daemon check_setuid
@@ -61,24 +65,6 @@ Saved user ID: 1 (daemon)
 ##
 # Setuid on freebsd and dragonflybsd
 tests([
-# Rebuild.
-"""\
-% {make} --no-print-directory clean all
-...
-""",
-# Run as user "daemon".
-"""\
-% sudo ./check_setuid 1
-Real user ID: 0 (root)
-Effective user ID: 0 (root)
-Saved user ID: 0 (root)
-
-Calling setuid(1)
-
-Real user ID: 1 (daemon)
-Effective user ID: 1 (daemon)
-Saved user ID: 1 (daemon)
-""",
 # Make file setuid daemon
 """\
 % sudo chown daemon check_setuid
