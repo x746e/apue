@@ -4,3 +4,4 @@ check_setuid
 get_sunos_saved_suid
 print_ids.c
 print_ids
+check_swapping_uids

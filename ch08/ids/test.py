@@ -108,7 +108,7 @@ tests([
 % {make} --no-print-directory clean all
 ...
 """,
-# Run as user "daemon".
+# seteuid(daemon) under root should set just euid to daemon.
 """\
 % sudo ./check_setuid -e 1
 Real user ID: 0 (root)
@@ -154,3 +154,28 @@ Saved user ID: 1 (daemon)
 ...
 """
 ])
+
+##
+# * Run set-uid binary
+# * Set euid to real uid
+# * Set euid to saved set-user-id.
+test("""\
+% sudo chown daemon check_swapping_uids
+% sudo chmod u+s check_swapping_uids
+% ./check_swapping_uids
+Real user ID: 10... (tn)
+Effective user ID: 1 (daemon)
+Saved user ID: 1 (daemon)
+
+Saved euid: 1
+
+Calling seteuid(getuid())
+Real user ID: 10... (tn)
+Effective user ID: 10... (tn)
+Saved user ID: 1 (daemon)
+
+Calling seteuid(saved_uid)
+Real user ID: 10... (tn)
+Effective user ID: 1 (daemon)
+Saved user ID: 1 (daemon)
+""")
