@@ -13,9 +13,9 @@ int main() {
     printf("child pid: %d\n", pid);
 
 #ifdef __sun__
-    char *cmd_template = "ps --pid %d -o s --no-headers | tail -n 1";
+    char *cmd_template = "ps -p %d -o s | tail -n 1";
 #else
-    char *cmd_template = "ps --pid %d -o stat --no-headers | tail -n 1";
+    char *cmd_template = "ps -p %d -o stat | tail -n 1";
 #endif
 
     char cmd[256] = { 0 };
