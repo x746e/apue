@@ -179,3 +179,24 @@ Real user ID: 10... (tn)
 Effective user ID: 1 (daemon)
 Saved user ID: 1 (daemon)
 """)
+
+##
+# Check swapping uid and euid using setreuid.
+test("""\
+% sudo chown daemon check_setreuid_swapping
+% sudo chmod u+s check_setreuid_swapping
+% ./check_setreuid_swapping
+Real user ID: 10... (tn)
+Effective user ID: 1 (daemon)
+Saved user ID: 1 (daemon)
+
+Calling setreuid(geteuid(), getuid())
+Real user ID: 1 (daemon)
+Effective user ID: 10... (tn)
+Saved user ID: 10... (tn)
+
+Calling setreuid(geteuid(), getuid()) again
+Real user ID: 10... (tn)
+Effective user ID: 1 (daemon)
+Saved user ID: 1 (daemon)
+""")

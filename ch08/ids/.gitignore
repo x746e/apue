@@ -4,3 +4,4 @@ check_setuid
 get_sunos_saved_suid
 print_ids
 check_swapping_uids
+check_setreuid_swapping
