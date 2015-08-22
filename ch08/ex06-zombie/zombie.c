@@ -12,15 +12,18 @@ int main() {
     }
     printf("child pid: %d\n", pid);
 
-#ifdef __sun__
+// `ps' is not very portable utility.
+#if defined(__sun__)
     char *cmd_template = "ps -p %d -o s | tail -n 1";
-#else
-    char *cmd_template = "ps -p %d -o stat | tail -n 1";
+#elif defined(__linux__)
+    char *cmd_template = "ps --pid %d -o state --no-header";
+#else // assume *BSD
+    // Without `-a' ps on FreeBSD and DragonFly doesn't want to select zombie process.
+    char *cmd_template = "ps -a -p %d -o stat | tail -n 1";
 #endif
 
     char cmd[256] = { 0 };
     sprintf(cmd, cmd_template, pid);
-
     printf("Child status (first letter should be `Z'): ");
     fflush(stdout);
     system(cmd);
