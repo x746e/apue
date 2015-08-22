@@ -16,7 +16,7 @@ main(void)
     } else if (pid == 0) {      /* child */
         globvar++;              /* modify parent's variables */
         var++;
-        _exit(0);               /* child terminates */
+        exit(0);               /* child terminates */
     }
 
     /* parent continues here */
