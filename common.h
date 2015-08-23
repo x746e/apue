@@ -1,6 +1,7 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include <stdio.h>
+#include "apue.h"
 
 #define sys_chk(call) if ((call) == -1) { \
     err_sys("Error in `" #call "` syscall (%s:%d)", __FILE__, __LINE__); \
