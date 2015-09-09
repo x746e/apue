@@ -1,0 +1,85 @@
+/**
+ * Setup signal handler for SIGINT;
+ * longjmp from signal handler to main;
+ * Check if SIGINT is blocked
+ *
+ */
+
+#define _POSIX_SOURCE
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <setjmp.h>
+#include "common.h"
+
+jmp_buf env;
+
+void print_sigset(char* s);
+
+void handler(int num) {
+    printf("hello from handler\n");
+    print_sigset("in handler");
+    longjmp(env, 1);
+}
+
+
+int main() {
+
+    struct sigaction action;
+
+    action.sa_handler = handler;
+    sigemptyset(&action.sa_mask);
+
+    sys_chk(sigaction(SIGINT, &action, NULL));
+    
+    if (setjmp(env) > 0) {
+        printf("jumped to main\n");
+    }
+
+    while (1) {
+        print_sigset("blocked in main");
+        sleep(3);
+    }
+
+    return EXIT_SUCCESS;
+}
+
+
+void print_sigset(char *s) {
+    sigset_t blocked;
+    sigprocmask(0, NULL, &blocked);
+    printf("%s:", s);
+    if (sigismember(&blocked, SIGHUP)) printf(" SIGHUP");
+    if (sigismember(&blocked, SIGINT)) printf(" SIGINT");
+    if (sigismember(&blocked, SIGQUIT)) printf(" SIGQUIT");
+    if (sigismember(&blocked, SIGILL)) printf(" SIGILL");
+    if (sigismember(&blocked, SIGTRAP)) printf(" SIGTRAP");
+    if (sigismember(&blocked, SIGABRT)) printf(" SIGABRT");
+    if (sigismember(&blocked, SIGBUS)) printf(" SIGBUS");
+    if (sigismember(&blocked, SIGFPE)) printf(" SIGFPE");
+    if (sigismember(&blocked, SIGKILL)) printf(" SIGKILL");
+    if (sigismember(&blocked, SIGUSR1)) printf(" SIGUSR1");
+    if (sigismember(&blocked, SIGSEGV)) printf(" SIGSEGV");
+    if (sigismember(&blocked, SIGUSR2)) printf(" SIGUSR2");
+    if (sigismember(&blocked, SIGPIPE)) printf(" SIGPIPE");
+    if (sigismember(&blocked, SIGALRM)) printf(" SIGALRM");
+    if (sigismember(&blocked, SIGTERM)) printf(" SIGTERM");
+    if (sigismember(&blocked, SIGSTKFLT)) printf(" SIGSTKFLT");
+    if (sigismember(&blocked, SIGCHLD)) printf(" SIGCHLD");
+    if (sigismember(&blocked, SIGCONT)) printf(" SIGCONT");
+    if (sigismember(&blocked, SIGSTOP)) printf(" SIGSTOP");
+    if (sigismember(&blocked, SIGTSTP)) printf(" SIGTSTP");
+    if (sigismember(&blocked, SIGTTIN)) printf(" SIGTTIN");
+    if (sigismember(&blocked, SIGTTOU)) printf(" SIGTTOU");
+    if (sigismember(&blocked, SIGURG)) printf(" SIGURG");
+    if (sigismember(&blocked, SIGXCPU)) printf(" SIGXCPU");
+    if (sigismember(&blocked, SIGXFSZ)) printf(" SIGXFSZ");
+    if (sigismember(&blocked, SIGVTALRM)) printf(" SIGVTALRM");
+    if (sigismember(&blocked, SIGPROF)) printf(" SIGPROF");
+    if (sigismember(&blocked, SIGWINCH)) printf(" SIGWINCH");
+    if (sigismember(&blocked, SIGIO)) printf(" SIGIO");
+    if (sigismember(&blocked, SIGPWR)) printf(" SIGPWR");
+    if (sigismember(&blocked, SIGSYS)) printf(" SIGSYS");
+    if (sigismember(&blocked, SIGUNUSED)) printf(" SIGUNUSED");
+    printf("\n");
+}
