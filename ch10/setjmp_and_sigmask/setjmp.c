@@ -5,12 +5,13 @@
  *
  */
 
-#define _POSIX_SOURCE
+#include "common.h"
+#define _POSIX_SOURCE 1
+#define __BSD_VISIBLE 1
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <setjmp.h>
-#include "common.h"
 
 jmp_buf env;
 
@@ -64,7 +65,9 @@ void print_sigset(char *s) {
     if (sigismember(&blocked, SIGPIPE)) printf(" SIGPIPE");
     if (sigismember(&blocked, SIGALRM)) printf(" SIGALRM");
     if (sigismember(&blocked, SIGTERM)) printf(" SIGTERM");
+#ifdef SIGSTKFLT
     if (sigismember(&blocked, SIGSTKFLT)) printf(" SIGSTKFLT");
+#endif
     if (sigismember(&blocked, SIGCHLD)) printf(" SIGCHLD");
     if (sigismember(&blocked, SIGCONT)) printf(" SIGCONT");
     if (sigismember(&blocked, SIGSTOP)) printf(" SIGSTOP");
@@ -78,8 +81,9 @@ void print_sigset(char *s) {
     if (sigismember(&blocked, SIGPROF)) printf(" SIGPROF");
     if (sigismember(&blocked, SIGWINCH)) printf(" SIGWINCH");
     if (sigismember(&blocked, SIGIO)) printf(" SIGIO");
+#ifdef SIGPWR
     if (sigismember(&blocked, SIGPWR)) printf(" SIGPWR");
+#endif
     if (sigismember(&blocked, SIGSYS)) printf(" SIGSYS");
-    if (sigismember(&blocked, SIGUNUSED)) printf(" SIGUNUSED");
     printf("\n");
 }
