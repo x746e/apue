@@ -5,10 +5,10 @@
  *
  */
 
-#include "apue.h"
-#include "common.h"
 #define _POSIX_SOURCE 1
 #define __BSD_VISIBLE 1
+#include "apue.h"
+#include "common.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <setjmp.h>
