@@ -5,7 +5,6 @@
  *
  */
 
-#define _POSIX_SOURCE 1
 #define __BSD_VISIBLE 1
 #include "apue.h"
 #include "common.h"
@@ -15,11 +14,11 @@
 
 jmp_buf env;
 
-void print_sigset(char* s);
+void print_sigmask(char* s);
 
 void handler(int num) {
     printf("hello from handler\n");
-    print_sigset("in handler");
+    print_sigmask("in handler");
     longjmp(env, 1);
 }
 
@@ -38,7 +37,7 @@ int main() {
     }
 
     while (1) {
-        print_sigset("blocked in main");
+        print_sigmask("blocked in main");
         sleep(3);
     }
 
@@ -46,7 +45,7 @@ int main() {
 }
 
 
-void print_sigset(char *s) {
+void print_sigmask(char *s) {
     sigset_t blocked;
     sigprocmask(0, NULL, &blocked);
     printf("%s:", s);
