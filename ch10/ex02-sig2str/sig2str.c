@@ -1,6 +1,8 @@
-#include <signal.h>
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
+#include <string.h>
 #include <strings.h>
 
 
@@ -19,19 +21,15 @@ int sig2str(int signum, char *str);
 
 
 int main(int argc, char *argv[]) {
-    /* int signum; */
-    /* for (signum = 0; signum < NSIG; ++signum) { */
-    /*     printf("%d: %s\n", signum, sys_signame[signum]); */
-    /* } */
     int ret;
     char buf[SIG2STR_MAX]; 
-    int signo;
+    int signum;
 
-    for (signo = -3; signo < 100; ++signo) {
+    for (signum = -3; signum < 100; ++signum) {
         bzero(buf, SIG2STR_MAX);
 
-        ret = sig2str(signo, buf);
-        printf("signo: %d, ret: %d, str: %s\n", signo, ret, buf);
+        ret = sig2str(signum, buf);
+        printf("signum: %3d, ret: %2d, str: %15s, desc: %s\n", signum, ret, buf, strsignal(signum));
     }
 
     return EXIT_SUCCESS;
@@ -39,20 +37,27 @@ int main(int argc, char *argv[]) {
 
 #ifndef __sun__
 int sig2str(int signum, char *str) {
-    // if 0 <= signum < RTMIN:
-    //      get signal name
-    //      copy it to str
-    //      return 0
-    // elif RTMIN <= signum < RTMIN + (RTMAX - RTMIN) / 2
-    //      copy RTMIN+X to str
-    //      return 0
-    // elif RTMIN + (RTMAX - RMIN) / 2 <= signo <= RTMAX
-    //      copy RTMAX-X to str
-    //      return 0
-    // else 
-    //      return -1
+    if (0 < signum && signum < SIGRTMIN) {
+        if (sys_signame[signum] != NULL) {
+            strncpy(str, sys_signame[signum], SIG2STR_MAX);
+            return 0;
+        }
+    } else if (SIGRTMIN <= signum && signum <= SIGRTMAX) {
+        int rtmiddle = SIGRTMIN + (SIGRTMAX - SIGRTMIN) / 2;
+        if (signum == SIGRTMIN) {
+            strncpy(str, "RTMIN", SIG2STR_MAX);
+        } else if (signum == SIGRTMAX) {
+            strncpy(str, "RTMAX", SIG2STR_MAX);
+        } else if (signum <= rtmiddle) {
+            snprintf(str, SIG2STR_MAX, "RTMIN+%d", signum - SIGRTMIN);
+        } else if (signum > rtmiddle) {
+            snprintf(str, SIG2STR_MAX, "RTMAX-%d", SIGRTMAX - signum);
+        } else {
+            assert(0);  // Unreachable
+        }
+        return 0;
+    }
 
-    /* strcpy(str, strsignal(signum)); */
-    return 0;
+    return -1;
 }
 #endif
