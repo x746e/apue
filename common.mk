@@ -2,12 +2,16 @@
 
 all: $(PROGS) .gitignore
 
+ifndef CFLAGS
 CFLAGS = -std=c99 -g -Wall
+endif
 INCLUDES = -I ../..
 # Hack to overcome deficiency of `which` on solaris.
 PYTHON = $(shell which python2.7 > /dev/null && which python2.7 || which python)
 
-CFILES += ../../apue.3e/lib/error.c ../../common.c
+ifndef CFILES
+    CFILES += ../../apue.3e/lib/error.c ../../common.c
+endif
 
 %: %.c
 	cc $(CFLAGS) $(INCLUDES) $(CFILES) $(CFILES_$@) $< -o $@ $(LDFLAGS) $(LDFLAGS_$@)
