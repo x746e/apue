@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
@@ -37,12 +38,20 @@ int main(int argc, char *argv[]) {
 
 #ifndef __sun__
 int sig2str(int signum, char *str) {
-    if (0 < signum && signum < SIGRTMIN && signum < NSIG) {
+    if (0 < signum && signum < NSIG) {
         if (sys_signame[signum] != NULL) {
             strncpy(str, sys_signame[signum], SIG2STR_MAX);
+            #ifdef __DragonFly__
+            while (*str != 0) {
+                *str = toupper(*str);
+                str++;
+            }
+            #endif
             return 0;
         }
-    } else if (SIGRTMIN <= signum && signum <= SIGRTMAX) {
+    }
+    #ifdef SIGRTMIN
+    else if (SIGRTMIN <= signum && signum <= SIGRTMAX) {
         int rtmiddle = SIGRTMIN + (SIGRTMAX - SIGRTMIN) / 2;
         if (signum == SIGRTMIN) {
             strncpy(str, "RTMIN", SIG2STR_MAX);
@@ -57,6 +66,7 @@ int sig2str(int signum, char *str) {
         }
         return 0;
     }
+    #endif
 
     return -1;
 }
