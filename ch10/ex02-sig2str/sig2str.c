@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
 
 #ifndef __sun__
 int sig2str(int signum, char *str) {
-    #ifdef _POSIX_REALTIME_SIGNALS
+    #ifndef __DragonFly__
       int max_non_rt_sig = MIN(NSIG, SIGRTMIN);
     #else
       int max_non_rt_sig = NSIG;
@@ -60,7 +60,7 @@ int sig2str(int signum, char *str) {
             return 0;
         }
     }
-    #ifdef _POSIX_REALTIME_SIGNALS
+    #ifndef __DragonFly__
     else if (SIGRTMIN <= signum && signum <= SIGRTMAX) {
         int rtmiddle = SIGRTMIN + (SIGRTMAX - SIGRTMIN) / 2;
         if (signum == SIGRTMIN) {
