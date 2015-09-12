@@ -1,18 +1,21 @@
-#include "apue.h"
 #include <signal.h>
+#include "apue.h"
 #define      SIG2STR_MAX     32
 
 
 int sig2str(int signum, char *str);
 
 #ifdef __linux__
-#include "linux_sys_signame.h"
+  #ifndef NSIG
+    #define NSIG _NSIG
+  #endif
+  #include "linux_sys_signame.h"
 #endif
 
 
 int main(int argc, char *argv[]) {
     int signum;
-    for (signum = 0; signum < _NSIG; ++signum) {
+    for (signum = 0; signum < NSIG; ++signum) {
         printf("%d: %s\n", signum, sys_signame[signum]);
     }
     return EXIT_SUCCESS;
