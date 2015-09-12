@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
     char buf[SIG2STR_MAX]; 
     int signum;
 
-    for (signum = -3; signum < 100; ++signum) {
+    for (signum = -3; signum < 150; ++signum) {
         bzero(buf, SIG2STR_MAX);
 
         ret = sig2str(signum, buf);
@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
 
 #ifndef __sun__
 int sig2str(int signum, char *str) {
-    if (0 < signum && signum < SIGRTMIN) {
+    if (0 < signum && signum < SIGRTMIN && signum < NSIG) {
         if (sys_signame[signum] != NULL) {
             strncpy(str, sys_signame[signum], SIG2STR_MAX);
             return 0;
