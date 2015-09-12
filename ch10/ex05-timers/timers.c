@@ -75,7 +75,7 @@ int main() {
     set_timer(4);
     set_timer(5);
     print_list();
-    int volatile k;
+    int volatile k = 0;
     for (int i = 0; i < 1000000; ++i)
         for (int j = 0; j < 2000; ++j)
             k += i * j;
