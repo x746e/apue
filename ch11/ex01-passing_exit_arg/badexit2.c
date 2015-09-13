@@ -19,10 +19,14 @@ printfoo(const char *s, const struct foo *fp)
 void *
 thr_fn1(void *arg)
 {
-    struct foo  foo = {1, 2, 3, 4};
+    struct foo *foo = malloc(sizeof(struct foo));
+    foo->a = 1;
+    foo->b = 2;
+    foo->c = 3;
+    foo->d = 4;
 
-    printfoo("thread 1:\n", &foo);
-    pthread_exit((void *)&foo);
+    printfoo("thread 1:\n", foo);
+    pthread_exit((void *)foo);
 }
 
 void *
@@ -45,11 +49,13 @@ main(void)
     err = pthread_join(tid1, (void *)&fp);
     if (err != 0)
         err_exit(err, "can't join with thread 1");
+
     sleep(1);
     printf("parent starting second thread\n");
     err = pthread_create(&tid2, NULL, thr_fn2, NULL);
     if (err != 0)
         err_exit(err, "can't create thread 2");
+
     sleep(1);
     printfoo("parent:\n", fp);
     exit(0);
