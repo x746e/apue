@@ -1,10 +1,11 @@
 #include "apue.h"
+#include <fcntl.h>
 
 #define BUFFSIZE    100
 
 
 void sig_xfsz() {
-    printf("Caught SIGXFSZ\n");
+    fprintf(stderr, "Caught SIGXFSZ\n");
 }
 
 
@@ -14,10 +15,13 @@ main(void)
     int     n, nwritten;
     char    buf[BUFFSIZE];
 
+    int f1 = open("file", O_RDONLY);
+    int f2 = open("file.copy", O_WRONLY | O_CREAT | O_TRUNC);
+
     signal_intr(SIGXFSZ, sig_xfsz);
 
-    while ((n = read(STDIN_FILENO, buf, BUFFSIZE)) > 0) {
-        if ((nwritten = write(STDOUT_FILENO, buf, n)) != n) {
+    while ((n = read(f1, buf, BUFFSIZE)) > 0) {
+        if ((nwritten = write(f2, buf, n)) != n) {
             err_sys("write error, write %d bytes", nwritten);
         }
     }
