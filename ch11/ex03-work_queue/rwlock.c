@@ -1,6 +1,8 @@
 #include "apue.h"
+#include <stdbool.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <time.h>
 
 struct job {
     struct job *j_next;
@@ -13,6 +15,8 @@ struct queue {
     struct job      *q_head;
     struct job      *q_tail;
     pthread_rwlock_t q_lock;
+    pthread_cond_t   qready;
+    pthread_mutex_t  cond_lock;
 };
 
 /*
@@ -22,6 +26,14 @@ int
 queue_init(struct queue *qp)
 {
     int err;
+
+    // Initialize condition and its mutex.
+    err = pthread_cond_init(&qp->qready, NULL);
+    if (err != 0)
+        return err;
+    err = pthread_mutex_init(&qp->cond_lock, NULL);
+    if (err != 0)
+        return err;
 
     qp->q_head = NULL;
     qp->q_tail = NULL;
@@ -47,6 +59,8 @@ job_insert(struct queue *qp, struct job *jp)
         qp->q_tail = jp;    /* list was empty */
     qp->q_head = jp;
     pthread_rwlock_unlock(&qp->q_lock);
+    // Signal workers.
+    pthread_cond_broadcast(&qp->qready);
 }
 
 /*
@@ -64,6 +78,8 @@ job_append(struct queue *qp, struct job *jp)
         qp->q_head = jp;    /* list was empty */
     qp->q_tail = jp;
     pthread_rwlock_unlock(&qp->q_lock);
+    // Signal workers.
+    pthread_cond_broadcast(&qp->qready);
 }
 
 /*
@@ -108,5 +124,66 @@ job_find(struct queue *qp, pthread_t id)
     return(jp);
 }
 
+
+/*
+ * Worker thread.
+ */
+void *
+worker_thread(void *arg)
+{
+    struct queue *qp = (struct queue *)arg;
+    struct job *jp;
+
+    // Wait on condition...
+    pthread_mutex_lock(&qp->cond_lock);
+    while (true) {
+        pthread_cond_wait(&qp->qready, &qp->cond_lock);
+        // When signalled, try to find a job for itself.
+        printf("Thread %lu: Was waken up..", (unsigned long)pthread_self());
+        jp = job_find(qp, pthread_self());
+        // If found, do stuff, remove job.
+        if (jp) {
+            printf("  Got a job, doing stuff..");
+            job_remove(qp, jp);
+            free(jp);
+        }
+        printf("\n");
+    }
+
+}
+
+
+#define NTHREADS 3
+
+
 int main() {
+    int err;
+    pthread_t threads[NTHREADS];
+    pthread_t next_worker_tid;
+    struct queue queue;
+    struct job *jp;
+
+    srandom(time(NULL));
+
+    // Init queue.
+    err = queue_init(&queue);
+    if (err != 0)
+        err_exit(err, "can't init queue");
+
+    // Launch a bunch of threads.
+    for (int i = 0; i < NTHREADS; ++i) {
+        err = pthread_create(&threads[i], NULL, worker_thread, &queue);
+        if (err != 0)
+            err_exit(err, "can't create thread %d", i);
+    }
+
+    // Add a few jobs.
+    while (true) {
+        jp = malloc(sizeof(struct job));
+        next_worker_tid = threads[random() % NTHREADS];
+        jp->j_id = next_worker_tid;
+        printf("Master: queueing job for %lu\n", (unsigned long)next_worker_tid);
+        job_insert(&queue, jp);
+        sleep(1);
+    }
 }
