@@ -12,24 +12,33 @@ typedef struct my_barrier_t {
 
 int
 my_barrier_wait(my_barrier_t *barrier) {
+    int ret;
+    unsigned long self = (unsigned long)pthread_self();
+    printf("%lu: about to lock on &barrier->lock\n", self);
     pthread_mutex_lock(&barrier->lock);
+    printf("%lu: locked\n", self);
     barrier->finished++;
+    printf("%lu: count=%d, finished=%d\n", self, barrier->count, barrier->finished);
     if (barrier->count == barrier->finished) {
-        pthread_mutex_unlock(&barrier->lock);
         pthread_cond_broadcast(&barrier->cond);
-        return PTHREAD_BARRIER_SERIAL_THREAD;
-    } else {
-        return pthread_cond_wait(&barrier->cond, &barrier->lock);
+        printf("%lu: finished last, exiting\n", self);
+        ret = PTHREAD_BARRIER_SERIAL_THREAD;
     }
+    ret = pthread_cond_wait(&barrier->cond, &barrier->lock);
+    printf("%lu: unblocked, unblocking & exiting\n", self);
+    pthread_mutex_unlock(&barrier->lock);
+    return ret;
 }
 
 
 int
 my_barrier_destroy(my_barrier_t *barrier) {
     int err;
+    printf("Destroying mutex\n");
     err = pthread_mutex_destroy(&barrier->lock);
     if (err != 0)
         return err;
+    printf("Destroying condition\n");
     err = pthread_cond_destroy(&barrier->cond);
     if (err != 0)
         return err;
@@ -38,16 +47,13 @@ my_barrier_destroy(my_barrier_t *barrier) {
 
 
 int
-my_barrier_init(
-        my_barrier_t *barrier,
-        void *attr, unsigned count) {
+my_barrier_init(my_barrier_t *barrier, void *attr, unsigned count) {
     int err;
     pthread_mutexattr_t mutexattr;
 
     if (count < 0) {
         return EINVAL;
     }
-
 
     err = pthread_mutex_init(&barrier->lock, NULL);
     if (err != 0)
@@ -99,14 +105,14 @@ int main() {
             err_exit(err, "can't create thread %d", i);
     }
 
-    printf("Main thread: about to wait for barrier\n");
+    printf("Main thread (%lu): about to wait for barrier\n", (unsigned long)pthread_self());
     my_barrier_wait(&barrier);
-    printf("Main thread: after wait for barrier\n");
+    printf("Main thread (%lu): after wait for barrier\n", (unsigned long)pthread_self());
 
-    sleep(5);
+    /* sleep(5); */
 
-    /* err = my_barrier_destroy(&barrier); */
-    /* if (err != 0) { */
-    /*     err_exit(err, "Couldn't destroy barrier"); */
-    /* } */
+    err = my_barrier_destroy(&barrier);
+    if (err != 0) {
+        err_exit(err, "Couldn't destroy barrier");
+    }
 }
