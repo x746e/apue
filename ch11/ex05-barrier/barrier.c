@@ -16,6 +16,7 @@ my_barrier_wait(my_barrier_t *barrier) {
     unsigned long self = (unsigned long)pthread_self();
     printf("%lu: about to lock on &barrier->lock\n", self);
     pthread_mutex_lock(&barrier->lock);
+
     printf("%lu: locked\n", self);
     barrier->finished++;
     printf("%lu: count=%d, finished=%d\n", self, barrier->count, barrier->finished);
@@ -23,9 +24,11 @@ my_barrier_wait(my_barrier_t *barrier) {
         pthread_cond_broadcast(&barrier->cond);
         printf("%lu: finished last, exiting\n", self);
         ret = PTHREAD_BARRIER_SERIAL_THREAD;
+    } else {
+        ret = pthread_cond_wait(&barrier->cond, &barrier->lock);
+        printf("%lu: unblocked, unblocking & exiting\n", self);
     }
-    ret = pthread_cond_wait(&barrier->cond, &barrier->lock);
-    printf("%lu: unblocked, unblocking & exiting\n", self);
+
     pthread_mutex_unlock(&barrier->lock);
     return ret;
 }
@@ -109,7 +112,7 @@ int main() {
     my_barrier_wait(&barrier);
     printf("Main thread (%lu): after wait for barrier\n", (unsigned long)pthread_self());
 
-    /* sleep(5); */
+    /* sleep(1); */
 
     err = my_barrier_destroy(&barrier);
     if (err != 0) {
