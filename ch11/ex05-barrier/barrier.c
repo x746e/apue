@@ -51,7 +51,7 @@ my_barrier_init(my_barrier_t *barrier, void *attr, unsigned count) {
     int err;
     pthread_mutexattr_t mutexattr;
 
-    if (count < 0) {
+    if (count < 1) {
         return EINVAL;
     }
 
