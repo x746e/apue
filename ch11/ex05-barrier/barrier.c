@@ -16,8 +16,8 @@ my_barrier_wait(my_barrier_t *barrier) {
     unsigned long self = (unsigned long)pthread_self();
     printf("%lu: about to lock on &barrier->lock\n", self);
     pthread_mutex_lock(&barrier->lock);
+    printf("%lu: LLL: locked\n", self);
 
-    printf("%lu: locked\n", self);
     barrier->finished++;
     printf("%lu: count=%d, finished=%d\n", self, barrier->count, barrier->finished);
     if (barrier->count == barrier->finished) {
@@ -25,10 +25,12 @@ my_barrier_wait(my_barrier_t *barrier) {
         printf("%lu: finished last, exiting\n", self);
         ret = PTHREAD_BARRIER_SERIAL_THREAD;
     } else {
+        printf("%lu: LLL about to wait on condition, and unblock the lock\n", self);
         ret = pthread_cond_wait(&barrier->cond, &barrier->lock);
         printf("%lu: unblocked, unblocking & exiting\n", self);
     }
 
+    printf("%lu: LLL: about to unlock\n", self);
     pthread_mutex_unlock(&barrier->lock);
     return ret;
 }
@@ -105,14 +107,18 @@ int main() {
     for (int i = 0; i < NTHREADS; ++i) {
         err = pthread_create(&threads[i], NULL, thread, &barrier);
         if (err != 0)
-            err_exit(err, "can't create thread %d", i);
+            err_exit(err, "Can't create thread %d", i);
     }
 
     printf("Main thread (%lu): about to wait for barrier\n", (unsigned long)pthread_self());
     my_barrier_wait(&barrier);
     printf("Main thread (%lu): after wait for barrier\n", (unsigned long)pthread_self());
 
-    /* sleep(1); */
+    for (int i = 0; i < NTHREADS; ++i) {
+        err = pthread_join(threads[i], NULL);
+        if (err != 0)
+            err_exit(err, "Can't join thread %d", i);
+    }
 
     err = my_barrier_destroy(&barrier);
     if (err != 0) {
