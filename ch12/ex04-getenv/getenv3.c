@@ -70,4 +70,8 @@ int main() {
 
     shell = getenv("SHELL");
     printf("main: SHELL=%s\n", shell);
+
+    err = pthread_join(tid, NULL);
+    if (err != 0)
+        err_exit(err, "Can't join thread");
 }
