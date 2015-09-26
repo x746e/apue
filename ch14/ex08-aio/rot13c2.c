@@ -3,6 +3,7 @@
 #include <fcntl.h>
 #include <aio.h>
 #include <errno.h>
+#include <stdbool.h>
 
 #define BSZ 4096
 #define NBUF 8
@@ -15,7 +16,6 @@ enum rwop {
 
 struct buf {
     enum rwop     op;
-    int           last;
     struct aiocb  aiocb;
     unsigned char data[BSZ];
 };
@@ -42,18 +42,12 @@ int
 main(int argc, char* argv[])
 {
     int                 ifd, ofd, i, j, n, err, numop;
-    struct stat         sbuf;
     const struct aiocb  *aiolist[NBUF];
     off_t               off = 0;
+    bool                read_done = false, write_done;
 
-    if (argc != 3)
-        err_quit("usage: rot13 infile outfile");
-    if ((ifd = open(argv[1], O_RDONLY)) < 0)
-        err_sys("can't open %s", argv[1]);
-    if ((ofd = open(argv[2], O_RDWR|O_CREAT|O_TRUNC, FILE_MODE)) < 0)
-        err_sys("can't create %s", argv[2]);
-    if (fstat(ifd, &sbuf) < 0)
-        err_sys("fstat failed");
+    ifd = STDIN_FILENO;
+    ofd = STDOUT_FILENO;
 
     /* initialize the buffers */
     for (i = 0; i < NBUF; i++) {
@@ -64,7 +58,8 @@ main(int argc, char* argv[])
     }
 
     numop = 0;
-    for (;;) {
+    while (!write_done) {
+        write_done = true;
         for (i = 0; i < NBUF; i++) {
             switch (bufs[i].op) {
             case UNUSED:
@@ -72,13 +67,12 @@ main(int argc, char* argv[])
                  * Read from the input file if more data
                  * remains unread.
                  */
-                if (off < sbuf.st_size) {
+                if (!read_done) {
+                    write_done = false;
                     bufs[i].op = READ_PENDING;
                     bufs[i].aiocb.aio_fildes = ifd;
                     bufs[i].aiocb.aio_offset = off;
                     off += BSZ;
-                    if (off >= sbuf.st_size)
-                        bufs[i].last = 1;
                     bufs[i].aiocb.aio_nbytes = BSZ;
                     if (aio_read(&bufs[i].aiocb) < 0)
                         err_sys("aio_read failed");
@@ -103,8 +97,10 @@ main(int argc, char* argv[])
                  */
                 if ((n = aio_return(&bufs[i].aiocb)) < 0)
                     err_sys("aio_return failed");
-                if (n != BSZ && !bufs[i].last)
-                    err_quit("short read (%d/%d)", n, BSZ);
+                if (n == 0) {
+                    read_done = true;
+                    continue;
+                }
                 for (j = 0; j < n; j++)
                     bufs[i].data[j] = translate(bufs[i].data[j]);
                 bufs[i].op = WRITE_PENDING;
@@ -113,11 +109,14 @@ main(int argc, char* argv[])
                 if (aio_write(&bufs[i].aiocb) < 0)
                     err_sys("aio_write failed");
                 /* retain our spot in aiolist */
+                write_done = false;
                 break;
 
             case WRITE_PENDING:
-                if ((err = aio_error(&bufs[i].aiocb)) == EINPROGRESS)
+                if ((err = aio_error(&bufs[i].aiocb)) == EINPROGRESS) {
+                    write_done = false;
                     continue;
+                }
                 if (err != 0) {
                     if (err == -1)
                         err_sys("aio_error failed");
@@ -138,10 +137,7 @@ main(int argc, char* argv[])
                 break;
             }
         }
-        if (numop == 0) {
-            if (off >= sbuf.st_size)
-                break;
-        } else {
+        if (numop != 0) {
             if (aio_suspend(aiolist, NBUF, NULL) < 0)
                 err_sys("aio_suspend failed");
         }

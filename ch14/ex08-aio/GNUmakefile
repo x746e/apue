@@ -1,4 +1,4 @@
-PROGS = rot13c2
+PROGS = rot13c2 aiotest
 
 LDFLAGS = -lrt
 
