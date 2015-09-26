@@ -35,7 +35,7 @@ main(int argc, char *argv[])
         if (ferror(fp))
             err_sys("fgets error");
 
-        close(fd[1]);   /* close write end of pipe for reader */
+        //close(fd[1]);   /* close write end of pipe for reader */
 
         if (waitpid(pid, NULL, 0) < 0)
             err_sys("waitpid error");
@@ -48,7 +48,7 @@ main(int argc, char *argv[])
             close(fd[0]);   /* don't need this after dup2 */
         }
 
-        /* get arguments for execl() */
+        /* get arguments for execlp() */
         if ((pager = getenv("PAGER")) == NULL)
             pager = DEF_PAGER;
         if ((argv0 = strrchr(pager, '/')) != NULL)
