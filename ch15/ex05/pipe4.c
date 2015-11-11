@@ -24,10 +24,14 @@ main(int argc, char *argv[])
         close(fd1[0]);
         close(fd2[1]);
 
-        child_in = fdopen(fd1[1], "w");
-        child_out = fdopen(fd2[0], "r");
-        setvbuf(child_in, NULL, _IOLBF, 0);
-        setvbuf(child_out, NULL, _IOLBF, 0);
+        if ((child_in = fdopen(fd1[1], "w")) == NULL)
+            err_sys("fdopen error");
+        if ((child_out = fdopen(fd2[0], "r")) == NULL)
+            err_sys("fdopen error");
+        if (setvbuf(child_in, NULL, _IOLBF, 0) < 0)
+            err_sys("setvbuf error");
+        if (setvbuf(child_out, NULL, _IOLBF, 0) < 0)
+            err_sys("setvbuf error");
 
         while (fgets(line, MAXLINE, stdin) != NULL) {
             /* fprintf(stderr, "%s: read:\n>>>%s<<<\n", argv[0], line); */
