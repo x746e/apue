@@ -1,6 +1,6 @@
 #include "apue.h"
 
-static void sig_pipe(int);      /* our signal handler */
+/* static void sig_pipe(int);      #<{(| our signal handler |)}># */
 
 int
 main(void)
@@ -9,8 +9,8 @@ main(void)
     pid_t   pid;
     char    line[MAXLINE];
 
-    if (signal(SIGPIPE, sig_pipe) == SIG_ERR)
-        err_sys("signal error");
+    /* if (signal(SIGPIPE, sig_pipe) == SIG_ERR) */
+    /*     err_sys("signal error"); */
 
     if (pipe(fd1) < 0 || pipe(fd2) < 0)
         err_sys("pipe error");
@@ -59,9 +59,9 @@ main(void)
     exit(0);
 }
 
-static void
-sig_pipe(int signo)
-{
-    printf("SIGPIPE caught\n");
-    exit(1);
-}
+/* static void */
+/* sig_pipe(int signo) */
+/* { */
+/*     printf("SIGPIPE caught\n"); */
+/*     exit(1); */
+/* } */
