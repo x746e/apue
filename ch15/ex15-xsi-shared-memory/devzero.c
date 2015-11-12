@@ -1,9 +1,11 @@
 #include "apue.h"
+#include "common.h"
 #include <fcntl.h>
-#include <sys/mman.h>
+#include <sys/shm.h>
 
 #define NLOOPS      1000
 #define SIZE        sizeof(long)    /* size of shared memory area */
+#define SHM_MODE    0600
 
 static int
 update(long *ptr)
@@ -15,16 +17,12 @@ update(long *ptr)
 int
 main(void)
 {
-    int     fd, i, counter;
-    pid_t   pid;
+    int     shmid, i, counter;
     void    *area;
+    pid_t   pid;
 
-    if ((fd = open("/dev/zero", O_RDWR)) < 0)
-        err_sys("open error");
-    if ((area = mmap(0, SIZE, PROT_READ | PROT_WRITE, MAP_SHARED,
-      fd, 0)) == MAP_FAILED)
-        err_sys("mmap error");
-    close(fd);      /* can close /dev/zero now that it's mapped */
+    sys_chk(shmid = shmget(IPC_PRIVATE, SIZE, SHM_MODE));
+    sys_chk((long)(area = shmat(shmid, 0, 0)));
 
     TELL_WAIT();
 
