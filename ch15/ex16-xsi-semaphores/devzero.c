@@ -83,7 +83,13 @@ main(void)
             ops[0].sem_op = 1;
             semop(semid, ops, 1);
         }
+
+        // Remove semaphore and shared memory.
+        sys_chk(semctl(semid, 0, IPC_RMID));
+        sys_chk(shmctl(shmid, IPC_RMID, NULL));
     }
+
+
 
     exit(0);
 }
