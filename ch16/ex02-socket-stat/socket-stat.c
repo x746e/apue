@@ -21,7 +21,7 @@ int main() {
 
     printf("ID of device containing file: %lld\n",       (long long)buf.st_dev);
     printf("inode number: %lld\n",                       (long long)buf.st_ino);
-    printf("protection: %o\n",                           buf.st_mode);
+    printf("protection: %o\n",                           (unsigned int)buf.st_mode);
     printf("number of hard links: %lld\n",               (long long)buf.st_nlink);
     printf("user ID of owner: %lld\n",                   (long long)buf.st_uid);
     printf("group ID of owner: %lld\n",                  (long long)buf.st_gid);
