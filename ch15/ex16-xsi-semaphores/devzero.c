@@ -12,11 +12,13 @@
 #define SEM_CHILD   1
 
 
+#if !(defined(__FreeBSD__) || defined(__DragonFly__))
 union semun {
     int              val;    /* Value for SETVAL */
     struct semid_ds *buf;    /* Buffer for IPC_STAT, IPC_SET */
     unsigned short  *array;  /* Array for GETALL, SETALL */
 };
+#endif
 
 
 static int
