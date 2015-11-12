@@ -89,7 +89,5 @@ main(void)
         sys_chk(shmctl(shmid, IPC_RMID, NULL));
     }
 
-
-
     exit(0);
 }
