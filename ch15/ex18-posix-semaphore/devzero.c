@@ -1,24 +1,13 @@
 #include "apue.h"
 #include "common.h"
+#include <stdbool.h>
 #include <fcntl.h>
 #include <sys/shm.h>
-#include <sys/sem.h>
+#include <semaphore.h>
 
 #define NLOOPS      1000
 #define SIZE        sizeof(long)    /* size of shared memory area */
 #define SHM_MODE    0600
-
-#define SEM_PARENT  0
-#define SEM_CHILD   1
-
-
-#if !(defined(__FreeBSD__) || defined(__DragonFly__))
-union semun {
-    int              val;    /* Value for SETVAL */
-    struct semid_ds *buf;    /* Buffer for IPC_STAT, IPC_SET */
-    unsigned short  *array;  /* Array for GETALL, SETALL */
-};
-#endif
 
 
 static int
@@ -31,62 +20,47 @@ update(long *ptr)
 int
 main(void)
 {
-    int     shmid, semid, i, counter;
+    int     shmid, i, counter;
     void    *area;
     pid_t   pid;
-    struct sembuf ops[1];
-    union semun semopts;
+    sem_t   *child_sem, *parent_sem;
 
     sys_chk(shmid = shmget(IPC_PRIVATE, SIZE, SHM_MODE));
     sys_chk((long)(area = shmat(shmid, 0, 0)));
 
-    sys_chk(semid = semget(IPC_PRIVATE, 2, IPC_CREAT | S_IWUSR | S_IRUSR));
-    semopts.val = 1;
-    sys_chk(semctl(semid, SEM_PARENT, SETVAL, semopts)); // Parent should run first.
-    semopts.val = 0;
-    sys_chk(semctl(semid, SEM_CHILD, SETVAL, semopts));
+    sys_sem_chk(parent_sem = sem_open("/parent", O_CREAT, S_IWUSR | S_IRUSR, 1));
+    sys_sem_chk(child_sem = sem_open("/child", O_CREAT, S_IWUSR | S_IRUSR, 0));
 
     if ((pid = fork()) < 0) {
         err_sys("fork error");
     } else if (pid > 0) {           /* parent */
-        ops[0].sem_flg = 0;
         for (i = 0; i < NLOOPS; i += 2) {
-
             // Can parent run?
-            ops[0].sem_num = SEM_PARENT;
-            ops[0].sem_op = -1;
-            semop(semid, ops, 1);
+            sys_chk(sem_wait(parent_sem));
 
             if ((counter = update((long *)area)) != i)
                 err_quit("parent: expected %d, got %d", i, counter);
 
             // Allow child to run.
-            ops[0].sem_num = SEM_CHILD;
-            ops[0].sem_op = 1;
-            semop(semid, ops, 1);
-
+            sys_chk(sem_post(child_sem));
         }
     } else {                        /* child */
-        ops[0].sem_num = 0;
-        ops[0].sem_flg = 0;
         for (i = 1; i < NLOOPS + 1; i += 2) {
             // Can child run?
-            ops[0].sem_num = SEM_CHILD;
-            ops[0].sem_op = -1;
-            semop(semid, ops, 1);
+            sys_chk(sem_wait(child_sem));
 
             if ((counter = update((long *)area)) != i)
                 err_quit("child: expected %d, got %d", i, counter);
 
             // Allow parent to run.
-            ops[0].sem_num = SEM_PARENT;
-            ops[0].sem_op = 1;
-            semop(semid, ops, 1);
+            sys_chk(sem_post(parent_sem));
         }
 
-        // Remove semaphore and shared memory.
-        sys_chk(semctl(semid, 0, IPC_RMID));
-        sys_chk(shmctl(shmid, IPC_RMID, NULL));
+        // Remove semaphores.
+        sys_chk(sem_close(parent_sem));
+        sys_chk(sem_unlink("/parent"));
+        sys_chk(sem_close(child_sem));
+        sys_chk(sem_unlink("/child"));
     }
 
     exit(0);
