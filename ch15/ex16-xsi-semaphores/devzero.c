@@ -70,7 +70,7 @@ main(void)
         ops[0].sem_num = 0;
         ops[0].sem_flg = 0;
         for (i = 1; i < NLOOPS + 1; i += 2) {
-            // Can parent run?
+            // Can child run?
             ops[0].sem_num = SEM_CHILD;
             ops[0].sem_op = -1;
             semop(semid, ops, 1);
