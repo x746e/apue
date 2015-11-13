@@ -1,5 +1,7 @@
 PROGS = socket-stat
 
-LDFLAGS = -lxnet
+ifeq ($(shell uname),SunOS)
+    LDFLAGS += -lxnet
+endif
 
 include ../../common.mk
