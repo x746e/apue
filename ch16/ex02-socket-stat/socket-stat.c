@@ -6,10 +6,13 @@
 
 int main() {
     int s;
+    char sockpath[] = "foo.socket";
     struct sockaddr_un un;
 
+    unlink(sockpath);
+
     un.sun_family = AF_UNIX;
-    strcpy(un.sun_path, "foo.socket");
+    strcpy(un.sun_path, sockpath);
     sys_chk(s = socket(AF_UNIX, SOCK_STREAM, 0));
     sys_chk(bind(s, (struct sockaddr *)&un, sizeof(struct sockaddr_un)));
 
