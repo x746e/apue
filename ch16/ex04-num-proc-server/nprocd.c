@@ -23,12 +23,12 @@ serve(int sockfd)
     set_cloexec(sockfd);
     for (;;) {
         if ((clfd = accept(sockfd, NULL, NULL)) < 0) {
-            syslog(LOG_ERR, "ruptimed: accept error: %s",
+            fprintf(stderr, "ruptimed: accept error: %s",
               strerror(errno));
             exit(1);
         }
         set_cloexec(clfd);
-        if ((fp = popen("/usr/bin/uptime", "r")) == NULL) {
+        if ((fp = popen("echo $(( $(ps aux | wc -l) - 1 ))", "r")) == NULL) {
             sprintf(buf, "error: %s\n", strerror(errno));
             send(clfd, buf, strlen(buf), 0);
         } else {
@@ -49,22 +49,22 @@ main(int argc, char *argv[])
     char            *host;
 
     if (argc != 1)
-        err_quit("usage: ruptimed");
+        err_quit("usage: nprocd");
     if ((n = sysconf(_SC_HOST_NAME_MAX)) < 0)
         n = HOST_NAME_MAX;  /* best guess */
     if ((host = malloc(n)) == NULL)
         err_sys("malloc error");
     if (gethostname(host, n) < 0)
         err_sys("gethostname error");
-    daemonize("ruptimed");
+    /* daemonize("ruptimed"); */
     memset(&hint, 0, sizeof(hint));
     hint.ai_flags = AI_CANONNAME;
     hint.ai_socktype = SOCK_STREAM;
     hint.ai_canonname = NULL;
     hint.ai_addr = NULL;
     hint.ai_next = NULL;
-    if ((err = getaddrinfo(host, "ruptime", &hint, &ailist)) != 0) {
-        syslog(LOG_ERR, "ruptimed: getaddrinfo error: %s",
+    if ((err = getaddrinfo(host, "12345", &hint, &ailist)) != 0) {
+        fprintf(stderr, "ruptimed: getaddrinfo error: %s",
           gai_strerror(err));
         exit(1);
     }
