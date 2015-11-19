@@ -1,4 +1,5 @@
 #include "apue.h"
+#include "common.h"
 #include <netdb.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -13,11 +14,21 @@
 
 extern int initserver(int, const struct sockaddr *, socklen_t, int);
 
+void sig_chld(int signum) {
+    while (waitpid((pid_t)(-1), 0, WNOHANG) > 0) {}
+}
+
 void
 serve(int sockfd)
 {
-    int     clfd, status;
+    int     clfd;
     pid_t   pid;
+
+    struct sigaction sa;
+    sa.sa_handler = &sig_chld;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESTART | SA_NOCLDSTOP;
+    sys_chk(sigaction(SIGCHLD, &sa, 0));
 
     set_cloexec(sockfd);
     for (;;) {
@@ -43,7 +54,6 @@ serve(int sockfd)
               strerror(errno));
         } else {        /* parent */
             close(clfd);
-            waitpid(pid, &status, 0);
         }
     }
 }
