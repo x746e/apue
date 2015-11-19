@@ -1,7 +1,6 @@
 #include "apue.h"
 #include <netdb.h>
 #include <errno.h>
-#include <syslog.h>
 #include <fcntl.h>
 #include <sys/socket.h>
 #include <sys/wait.h>
@@ -23,30 +22,24 @@ serve(int sockfd)
     set_cloexec(sockfd);
     for (;;) {
         if ((clfd = accept(sockfd, NULL, NULL)) < 0) {
-            syslog(LOG_ERR, "ruptimed: accept error: %s",
+            fprintf(stderr, "ruptimed: accept error: %s\n",
               strerror(errno));
             exit(1);
         }
         if ((pid = fork()) < 0) {
-            syslog(LOG_ERR, "ruptimed: fork error: %s",
+            fprintf(stderr, "ruptimed: fork error: %s\n",
               strerror(errno));
             exit(1);
         } else if (pid == 0) {  /* child */
-            /*
-             * The parent called daemonize ({Prog daemoninit}), so
-             * STDIN_FILENO, STDOUT_FILENO, and STDERR_FILENO
-             * are already open to /dev/null.  Thus, the call to
-             * close doesn't need to be protected by checks that
-             * clfd isn't already equal to one of these values.
-             */
             if (dup2(clfd, STDOUT_FILENO) != STDOUT_FILENO ||
               dup2(clfd, STDERR_FILENO) != STDERR_FILENO) {
-                syslog(LOG_ERR, "ruptimed: unexpected error");
+                fprintf(stderr, "ruptimed: unexpected error\n");
                 exit(1);
             }
-            close(clfd);
+            if (clfd != STDOUT_FILENO && clfd != STDERR_FILENO)
+                close(clfd);
             execl("/usr/bin/uptime", "uptime", (char *)0);
-            syslog(LOG_ERR, "ruptimed: unexpected return from exec: %s",
+            fprintf(stderr, "ruptimed: unexpected return from exec: %s\n",
               strerror(errno));
         } else {        /* parent */
             close(clfd);
@@ -71,15 +64,14 @@ main(int argc, char *argv[])
         err_sys("malloc error");
     if (gethostname(host, n) < 0)
         err_sys("gethostname error");
-    daemonize("ruptimed");
     memset(&hint, 0, sizeof(hint));
     hint.ai_flags = AI_CANONNAME;
     hint.ai_socktype = SOCK_STREAM;
     hint.ai_canonname = NULL;
     hint.ai_addr = NULL;
     hint.ai_next = NULL;
-    if ((err = getaddrinfo(host, "ruptime", &hint, &ailist)) != 0) {
-        syslog(LOG_ERR, "ruptimed: getaddrinfo error: %s",
+    if ((err = getaddrinfo(host, "12345", &hint, &ailist)) != 0) {
+        fprintf(stderr, "ruptimed: getaddrinfo error: %s\n",
           gai_strerror(err));
         exit(1);
     }
