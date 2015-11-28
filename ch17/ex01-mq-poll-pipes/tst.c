@@ -53,13 +53,11 @@ helper(void *arg)
 }
 
 int main() {
-    int                 i, n, err;
+    int                 i, err;
     int                 fd[2];
     int                 qid[NQ];
-    struct pollfd       pfd[NQ];
     struct threadinfo   ti[NQ];
     pthread_t           tid[NQ];
-    char                *buf;
     int                 read_fd, write_fd;
 
         i = 0;
@@ -77,11 +75,8 @@ int main() {
         if ((err = pthread_create(&tid[i], NULL, helper, &ti[i]) != 0))
             err_exit(err, "pthread_create error");
 
+    char *buf1 = NULL;
 
-    char *buf1;
-
-
-    printf("buf1 before read: %p\n", buf1);
     sys_chk(read(read_fd, &buf1, sizeof(char*)));
     printf("Got: addr: %p\n", buf1);
     printf("     text: '%s' \n", buf1);
