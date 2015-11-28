@@ -2,6 +2,7 @@
 #include <arpa/inet.h>
 #include <assert.h>
 #include <netinet/in.h>
+#include <sys/socket.h>
 #include "apue.h"
 #include "common.h"
 
