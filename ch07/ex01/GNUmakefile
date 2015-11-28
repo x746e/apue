@@ -1,5 +1,5 @@
-tst: tst.c
-	cc -g tst.c -o tst
+CFLAGS = -g
 
-clean:
-	rm tst
+PROGS = tst
+
+include ../../common.mk
