@@ -1,7 +1,7 @@
 PROGS = client server
 
 ifeq ($(shell uname),SunOS)
-    LDFLAGS += -lxnet
+    LDFLAGS += -lxnet -lnsl
 endif
 
 include ../../common.mk
