@@ -3,7 +3,7 @@
 all: $(PROGS) .gitignore
 
 ifndef CFLAGS
-CFLAGS = -std=c99 -g -Wall
+CFLAGS = -std=c99 -ggdb3 -Wall
 endif
 INCLUDES = -I ../..
 # Hack to overcome deficiency of `which` on solaris.
