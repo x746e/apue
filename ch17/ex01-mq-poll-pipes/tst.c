@@ -1,4 +1,5 @@
 #include "apue.h"
+#include "common.h"
 #include <poll.h>
 #include <pthread.h>
 #include <sys/msg.h>
@@ -18,28 +19,40 @@ struct mymesg {
     char mtext[MAXMSZ];
 };
 
+char *buf = "hello";
+
 void *
 helper(void *arg)
 {
     int                 n;
     struct mymesg       *m;
     struct threadinfo   *tip = arg;
-    char                *ptr;
+
+    char *ptr;
 
     for(;;) {
         m = malloc(sizeof(struct mymesg));
         memset(m, 0, sizeof(struct mymesg));
+
         if ((n = msgrcv(tip->qid, m, MAXMSZ, 0, MSG_NOERROR)) < 0)
             err_sys("msgrcv error");
+
         ptr = m->mtext;
+        /* ptr = buf; */
+
+        printf("ptr: %p\n", ptr);
+        printf("m->mtext: %p\n", m->mtext);
+        printf("&ptr: %p\n", &ptr);
+        printf("&(m->mtext): %p\n", &(m->mtext));
+
+        fprintf(stderr, "Sending pointer: %p\n", ptr);
         if (write(tip->fd, &ptr, sizeof(char*)) < 0)
             err_sys("write error");
     }
+
 }
 
-int
-main()
-{
+int main() {
     int                 i, n, err;
     int                 fd[2];
     int                 qid[NQ];
@@ -47,36 +60,32 @@ main()
     struct threadinfo   ti[NQ];
     pthread_t           tid[NQ];
     char                *buf;
+    int                 read_fd, write_fd;
 
-    for (i = 0; i < NQ; i++) {
+        i = 0;
+
         if ((qid[i] = msgget((KEY+i), IPC_CREAT|0666)) < 0)
             err_sys("msgget error");
 
-        fprintf(stderr, "queue ID %d is %d\n", i, qid[i]);
+        sys_chk(pipe(fd));
+        read_fd = fd[0];
+        write_fd = fd[1];
 
-        if (pipe(fd) < 0)
-            err_sys("pipe error");
-
-        pfd[i].fd = fd[0];
-        pfd[i].events = POLLIN;
         ti[i].qid = qid[i];
-        ti[i].fd = fd[1];
-        if ((err = pthread_create(&tid[i], NULL, helper, &ti[i])) != 0)
+        ti[i].fd = write_fd;
+
+        if ((err = pthread_create(&tid[i], NULL, helper, &ti[i]) != 0))
             err_exit(err, "pthread_create error");
-    }
 
-    for (;;) {
-        if (poll(pfd, NQ, -1) < 0)
-            err_sys("poll error");
-        for (i = 0; i < NQ; i++) {
-            if (pfd[i].revents & POLLIN) {
-                if ((n = read(pfd[i].fd, &buf, sizeof(char*))) < 0)
-                    err_sys("read error");
-                fprintf(stderr, "queue id %d, message %s\n", qid[i], buf);
-                // TODO: free message.
-            }
-        }
-    }
 
-    exit(0);
+    char *buf1;
+
+
+    printf("buf1 before read: %p\n", buf1);
+    sys_chk(read(read_fd, &buf1, sizeof(char*)));
+    printf("Got: addr: %p\n", buf1);
+    printf("     text: '%s' \n", buf1);
+
+    sleep(1);
+    return EXIT_SUCCESS;
 }
