@@ -15,7 +15,7 @@ int main() {
     sys_chk(pid = fork());
 
     if (pid == 0) { // child
-        sys_chk(fd = open("/etc/Muttrc", O_RDONLY));
+        sys_chk(fd = open("/etc/passwd", O_RDONLY));
         //printf("Child: sending fd: %d\n", fd);
         sys_chk(send_fd(fdpair[0], fd));
 

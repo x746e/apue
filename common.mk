@@ -9,6 +9,10 @@ INCLUDES = -I ../..
 # Hack to overcome deficiency of `which` on solaris.
 PYTHON = $(shell which python2.7 > /dev/null && which python2.7 || which python)
 
+ifeq ($(shell uname),FreeBSD)
+	CFLAGS += -DBSD -D__BSD_VISIBLE
+endif
+
 ifndef CFILES
     CFILES += ../../apue.3e/lib/error.c ../../common.c
 endif
