@@ -81,7 +81,7 @@ int main() {
     if (pid == 0) {  // Child.
         sys_chk(fds[0] = open("/etc/passwd", O_RDONLY));
         sys_chk(lseek(fds[0], 5, SEEK_SET));
-        sys_chk(fds[1] = open("/etc/fstab", O_RDONLY));
+        sys_chk(fds[1] = open("/etc/group", O_RDONLY));
         sys_chk(lseek(fds[1], 10, SEEK_SET));
         sys_chk(fds[2] = open("/bin/sh", O_RDONLY));
         sys_chk(lseek(fds[2], 20, SEEK_SET));
