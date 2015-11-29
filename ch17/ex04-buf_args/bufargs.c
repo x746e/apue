@@ -33,3 +33,21 @@ buf_args(char *buf, int (*optfunc)(int, char **))
      */
     return((*optfunc)(argc, argv));
 }
+
+
+int print(int argc, char *argv[]) {
+    for (int i = 0; i < argc; ++i) {
+        printf("#%d: %s\n", i, argv[i]);
+    }
+    return 0;
+}
+
+
+int main() {
+    char *buf = malloc(MAXLINE);
+
+    strcpy(buf, "hello world");
+    buf_args(buf, print);
+
+    return EXIT_SUCCESS;
+}
