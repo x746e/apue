@@ -1,6 +1,7 @@
 #include "apue.h"
+#include "common.h"
 
-#define MAXARGC     50  /* max number of arguments in buf */
+#define MAXARGC     3  /* max number of arguments in buf */
 #define WHITE   " \t\n" /* white space for tokenizing arguments */
 
 /*
@@ -13,15 +14,20 @@
 int
 buf_args(char *buf, int (*optfunc)(int, char **))
 {
-    char    *ptr, *argv[MAXARGC];
+    char    *ptr;
     int     argc;
+
+    int     argv_len = MAXARGC;
+    char    **argv = calloc(argv_len, sizeof(char*));
 
     if (strtok(buf, WHITE) == NULL)     /* an argv[0] is required */
         return(-1);
     argv[argc = 0] = buf;
     while ((ptr = strtok(NULL, WHITE)) != NULL) {
-        if (++argc >= MAXARGC-1)    /* -1 for room for NULL at end */
-            return(-1);
+        if (++argc >= argv_len-1) {    /* -1 for room for NULL at end */
+            argv_len *= 2;
+            argv = realloc(argv, argv_len * sizeof(char*));
+        }
         argv[argc] = ptr;
     }
     argv[++argc] = NULL;
@@ -31,7 +37,9 @@ buf_args(char *buf, int (*optfunc)(int, char **))
      * user's function can just copy the pointers, even
      * though argv[] array will disappear on return.
      */
-    return((*optfunc)(argc, argv));
+    int ret = ((*optfunc)(argc, argv));
+    free(argv);
+    return ret;
 }
 
 
@@ -46,8 +54,8 @@ int print(int argc, char *argv[]) {
 int main() {
     char *buf = malloc(MAXLINE);
 
-    strcpy(buf, "hello world");
-    buf_args(buf, print);
+    strcpy(buf, "hello world a b c");
+    sys_chk(buf_args(buf, print));
 
     return EXIT_SUCCESS;
 }
