@@ -24,15 +24,13 @@ helper(void *arg)
     int                 n;
     struct mymesg       *m;
     struct threadinfo   *tip = arg;
-    char                *ptr;
 
     for(;;) {
         m = malloc(sizeof(struct mymesg));
         memset(m, 0, sizeof(struct mymesg));
         if ((n = msgrcv(tip->qid, m, MAXMSZ, 0, MSG_NOERROR)) < 0)
             err_sys("msgrcv error");
-        ptr = m->mtext;
-        if (write(tip->fd, &ptr, sizeof(char*)) < 0)
+        if (write(tip->fd, &m, sizeof(void*)) < 0)
             err_sys("write error");
     }
 }
@@ -46,7 +44,7 @@ main()
     struct pollfd       pfd[NQ];
     struct threadinfo   ti[NQ];
     pthread_t           tid[NQ];
-    char                *buf;
+    struct mymesg       *m;
 
     for (i = 0; i < NQ; i++) {
         if ((qid[i] = msgget((KEY+i), IPC_CREAT|0666)) < 0)
@@ -70,10 +68,10 @@ main()
             err_sys("poll error");
         for (i = 0; i < NQ; i++) {
             if (pfd[i].revents & POLLIN) {
-                if ((n = read(pfd[i].fd, &buf, sizeof(char*))) < 0)
+                if ((n = read(pfd[i].fd, &m, sizeof(char*))) < 0)
                     err_sys("read error");
-                fprintf(stderr, "queue id %d, message %s\n", qid[i], buf);
-                // TODO: free message.
+                fprintf(stderr, "queue id %d, message %s\n", qid[i], m->mtext);
+                free(m);
             }
         }
     }
