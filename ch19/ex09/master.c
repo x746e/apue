@@ -38,10 +38,10 @@ int main() {
         slrd();
 
         // send sigterm
-        // doesn't work, failing with EINVAL
-        //int signum = SIGTERM;
-        //ioctl(ptym_fd, TIOCSIG, signum);
-        //slrd();
+        // Doesn't work on Linux, failing with EINVAL
+        if (ioctl(ptym_fd, TIOCSIG, SIGTERM) == 0) {
+            slrd();
+        }
         
         // change window size
         sys_chk(ioctl(ptym_fd, TIOCSWINSZ, &size));
